@@ -1,3 +1,4 @@
+#time
 open System.Text.RegularExpressions
 
 let (|Match|_|) (pat: string) (inp: string) =

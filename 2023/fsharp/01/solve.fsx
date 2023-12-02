@@ -1,3 +1,4 @@
+#time
 let lines = System.IO.File.ReadAllLines("input")
 
 let numbers lines =
