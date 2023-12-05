@@ -1,6 +1,8 @@
 #time
 open System.Text.RegularExpressions
 
+let teePrint label x = printfn $"{label}: {x}"; x
+
 let (|Match|_|) (pat: string) (inp: string) =
     let m = Regex.Match(inp, pat) in
 
@@ -25,7 +27,7 @@ module List =
                     loop (x::acc) xs
         loop [] xs
 
-let lines = System.IO.File.ReadAllLines("sample") |> Array.toList
+let lines = System.IO.File.ReadAllLines("input") |> Array.toList
 
 let seeds =
     match List.head lines with
@@ -51,6 +53,22 @@ let maps =
             ) |> Map.ofList
     maps
 
+let reverseMaps =
+    let mapParts = lines |> List.skip 2 |> List.splitWhen (fun line -> line = "")
+    let maps =
+        mapParts |> List.map (fun mapLines ->
+            let source, dest =
+                match List.head mapLines with
+                | Match "(.*)-to-(.*) map:" [ source; dest] -> source, dest
+            let map =
+                List.tail mapLines |> List.collect (fun line -> 
+                    let xs = String.split ' '  line |> Array.map int64
+                    [xs[0], xs[0] + xs[2] - 1L, xs[1] - xs[0]])
+                |> List.sort
+            dest, (source, map)      
+            ) |> Map.ofList
+    maps
+
 let seedsToLocations seedName locationName seeds =
     let findMap x mapList =
         mapList |> List.pairwise |> List.tryFind (fun ((x1, _), (x2, _)) -> x1 <= x && x2 > x) 
@@ -65,44 +83,29 @@ let seedsToLocations seedName locationName seeds =
             go nextMapKey (xs |> List.map (fun x -> nextMap |> findMap x))
     go seedName seeds
 
-let seedRangesToLocations seedName locationName seeds =
-    let seedRanges = seeds |> List.chunkBySize 2 |> List.collect (fun [x;y] -> [x, x; x+y-1L, x+y-1L]) |> List.sort
-    let splitRangeMap mapList ((a, ay), (b, by)) =
-        let splitted =
-            mapList |> List.pairwise |> List.choose (fun ((x1, y1), (x2, y2)) -> 
-                if b < x1 then None 
-                elif a >= x1 && b <= x2 then 
-                    printfn $"split1 {a} {b} {((x1, y1), (x2, y2))} %A{[a, y1+(a-x1); b, y1+(b-x1)]}"
-                    Some [a, y1+(a-x1); b, y1+(b-x1)]
-                elif a >= x1 && a <= x2 && b > x2 then 
-                    printfn $"split2 {a} {b} {((x1, y1), (x2, y2))} %A{[a, y1+(a-x1); x2, y2]}"
-                    Some [a, y1+(a-x1); x2, y2]
-                elif a < x1 && b <= x2 then 
-                    printfn $"split3 {a} {b} {((x1, y1), (x2, y2))} %A{[x1, y1; b, y1+(b-x1)]}"
-                    Some [a, ay; b, y1+(b-x1)] 
-                else None)
-            |> List.concat
-        if splitted = [] then
-            [a, ay; b, by]
-        else
-            printfn $"splitted {a} {b} %A{splitted}"
-            splitted
+let seedMap = seeds |> List.chunkBySize 2 |> List.collect (fun [x;y] -> [(x, x+y-1L, 0L)]) |> List.sort
 
-    let rangesMap ranges mapList = ranges |> List.pairwise |> List.collect (splitRangeMap mapList) |> List.sort |> List.distinct
-    
-    let rec go mapKey xs =
-        printfn $"{mapKey} -> %A{xs}"
-        if mapKey = locationName then
-            xs
+let backFind seedName locationName x =
+    let findMap x mapList =
+        mapList |> List.tryFind (fun (a, b, _) -> a <= x && x <= b) 
+        |> Option.map (fun (_, _, d) -> x + d)
+    let rec go mapKey x =
+        //printfn $"{mapKey} %A{xs}"
+        if mapKey = seedName then
+            //printfn "seed %A" x
+            findMap x seedMap |> Option.isSome
         else
-            let nextMapKey, nextMap = maps[mapKey]
-            printfn $"map {nextMapKey} %A{nextMap}"
-            go nextMapKey (rangesMap xs nextMap)
-    go seedName seedRanges
+            let nextMapKey, nextMap = reverseMaps[mapKey]
+            //printfn $"{nextMapKey} %A{nextMap}"
+            go nextMapKey (nextMap |> findMap x |> Option.defaultValue x)
+    go locationName x
+
+let findMinLocation seedName locationName =
+    Seq.initInfinite (fun x -> int64 x) |> Seq.filter (backFind seedName locationName) |> Seq.head
 
 let part1 = seedsToLocations "seed" "location" seeds |> Seq.min
 
-let part2 = seedRangesToLocations "seed" "location" seeds |> Seq.min
+let part2 = findMinLocation "seed" "location"
 
 printfn $"{part1}"
 printfn $"{part2}"
