@@ -26,20 +26,25 @@ let slideAllRocks moveDir rocks =
 let n = lines.Length
 let rocksLoad rocks = rocks |> Seq.sumBy (fun (_, y) -> n - y)
 
-let rec slideAllRocksCycle i dirs rocks =
-    printfn $"%A{i} {rocksLoad rocks}"
+let rec slideAllRocksCycle visited dirs rocks =
+    let i = Map.count visited
+    let visited2 = Map.add rocks i visited
+    //printfn $"%A{i} {rocksLoad rocks}"
     //rocks |> Set.toList |> List.iter (printfn "%A")
     let rocks2 = dirs |> List.fold (fun rocks dir -> slideAllRocks dir rocks) rocks
-    if rocks2 = rocks then rocks else slideAllRocksCycle (i+1) dirs rocks2
+    Map.tryFind rocks2 visited |> Option.map (fun j -> j, i-j+1, visited2) 
+    |> Option.defaultWith(fun () -> slideAllRocksCycle visited2 dirs rocks2)
 
 let part1() =
     let r = slideAllRocks dirs[0] rocks
     //printfn $"%A{r}"
     rocksLoad r
 let part2() =
-    let r = slideAllRocksCycle 0 dirs rocks
-    //printfn $"%A{r}"
-    rocksLoad r
+    let cycleCount = 1000000000
+    let offset, cycleLen, history = slideAllRocksCycle Map.empty dirs rocks
+    let values = history |> Map.toList |> List.map (fun (r, i) -> i, rocksLoad r) |> Map.ofList
+    let target = offset + (cycleCount - offset) % cycleLen
+    values.[target]
 
 printfn $"{part1()}" //107951
 printfn $"{part2()}" //95736
