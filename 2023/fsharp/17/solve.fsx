@@ -36,7 +36,7 @@ let pathStraightNum path =
     | d :: _ as xs -> xs |> List.takeWhile (fun d' -> d' = d) |> List.length
     | _ -> 0
 
-let dijsktra (initNodes: ('n * int) list) (neighF: 'n list -> ('n * int) list) (finishCond: 'n -> bool) =
+let dijkstra (initNodes: ('n * int) list) (neighF: 'n list -> ('n * int) list) (finishCond: 'n -> bool) =
     let pq = System.Collections.Generic.PriorityQueue<'n list, int>()
     let visited = System.Collections.Generic.HashSet<_>()
 
@@ -94,7 +94,7 @@ let start = [(0, 0), 0]
 
 let optimalPathCost minStraight maxStraight =
     let finishCond n = n = target
-    let r = dijsktra start (neigh minStraight maxStraight) finishCond 
+    let r = dijkstra start (neigh minStraight maxStraight) finishCond 
     let path = r |> Option.map (fst >> List.rev) |> Option.defaultValue []
     //printOptimalPath (path |> Set.ofList) costs
     r |> Option.map snd
