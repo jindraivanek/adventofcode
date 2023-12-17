@@ -22,7 +22,10 @@ let printOptimalPath (set: Set<(int * int)>) costMap =
 
     for x in minX..maxX do
         for y in minY..maxY do
-            if Set.contains (x, y) set then colorPrint (Map.find (x,y) costMap) else printf "%i" (Map.find (x,y) costMap)
+            if Set.contains (x, y) set then
+                colorPrint (Map.find (x, y) costMap)
+            else
+                printf "%i" (Map.find (x, y) costMap)
 
         printfn ""
 
@@ -32,7 +35,7 @@ let dirNeg (x, y) = (-x, -y)
 let dirs = [ (0, -1); (-1, 0); (0, 1); (1, 0) ]
 
 let pathStraightNum path =
-    match List.pairwise path |> List.map (fun (x,y) -> posMinus x y) with
+    match List.pairwise path |> List.map (fun (x, y) -> posMinus x y) with
     | d :: _ as xs -> xs |> List.takeWhile (fun d' -> d' = d) |> List.length
     | _ -> 0
 
@@ -49,52 +52,64 @@ let dijkstra (initNodes: ('n * int) list) (neighF: 'n list -> ('n * int) list) (
         else
             None
 
-    initNodes |> Seq.iter (fun (n, p) -> pq.Enqueue([n], p))
+    initNodes |> Seq.iter (fun (n, p) -> pq.Enqueue([ n ], p))
 
     let prevNode path = path |> List.tail |> List.tryHead
 
     let rec step () =
         match dequeue () with
-        | Some((node :: _ as path), p) when visited.Contains (node, pathStraightNum path, prevNode path) -> step()
+        | Some((node :: _ as path), p) when visited.Contains(node, pathStraightNum path, prevNode path) -> step ()
         | Some((node :: _ as path), p) when finishCond node -> Some(path, p)
         | None -> None
         | Some((node :: _ as path), p) ->
-            visited.Add (node, pathStraightNum path, prevNode path)
-            neighF path |> Seq.iter (fun (n, p') -> 
+            visited.Add(node, pathStraightNum path, prevNode path)
+
+            neighF path
+            |> Seq.iter (fun (n, p') ->
                 //printfn $"%A{(n::path, (pathStraightNum (n::path)), p+p')}"
-                let s = pathStraightNum (n::path)
+                let s = pathStraightNum (n :: path)
                 pq.Enqueue(n :: path, p + p'))
-            if finishCond node then printfn $"%A{(path, p)}"
+
+            if finishCond node then
+                printfn $"%A{(path, p)}"
+
             step ()
 
     step ()
 
 let costs =
-    lines |> Seq.mapi (fun y s -> s |> Seq.mapi (fun x c -> (x, y), c |> string |> int)) |> Seq.collect id |> Map.ofSeq
+    lines
+    |> Seq.mapi (fun y s -> s |> Seq.mapi (fun x c -> (x, y), c |> string |> int))
+    |> Seq.collect id
+    |> Map.ofSeq
 
 let neigh minStraight maxStraight path =
     let allowedDirs =
         match path with
         | n1 :: n2 :: _ as path ->
             let d = posMinus n1 n2
+
             if pathStraightNum path >= maxStraight then
                 dirs |> List.filter (fun d' -> d' <> d && d' <> dirNeg d)
             elif pathStraightNum path < minStraight then
-               [d]
+                [ d ]
             else
                 dirs |> List.filter (fun d' -> d' <> dirNeg d)
         | _ -> dirs
-    
+
     match path with
-    | n :: _ -> allowedDirs |> List.map (fun d -> posPlus n d) |> List.choose (fun n -> costs |> Map.tryFind n |> Option.map (fun p -> n, p))
+    | n :: _ ->
+        allowedDirs
+        |> List.map (fun d -> posPlus n d)
+        |> List.choose (fun n -> costs |> Map.tryFind n |> Option.map (fun p -> n, p))
     | _ -> failwith "neigh"
 
 let target = costs |> Map.keys |> Seq.max
-let start = [(0, 0), 0]
+let start = [ (0, 0), 0 ]
 
 let optimalPathCost minStraight maxStraight =
     let finishCond n = n = target
-    let r = dijkstra start (neigh minStraight maxStraight) finishCond 
+    let r = dijkstra start (neigh minStraight maxStraight) finishCond
     let path = r |> Option.map (fst >> List.rev) |> Option.defaultValue []
     //printOptimalPath (path |> Set.ofList) costs
     r |> Option.map snd
