@@ -4,8 +4,6 @@ let lines = System.IO.File.ReadAllLines("input")
 //let lines = System.IO.File.ReadAllLines("sample")
 //let lines = System.IO.File.ReadAllLines("sample2")
 
-let important = set["rx"; "hb";  "bs"; "js"; "rr"; "zb"]//;  "gr"; "st"; "lg"; "bn"]//;  "hm"; "jv"; "pc"; "vq"]
-
 type Signal =
     | Low
     | High
@@ -15,9 +13,6 @@ type Node =
     | FlipFlop of bool
     | Conjuction of Map<string, Signal>
     | Output of Signal
-let mutable lastSignal : Map<string * string * Signal, int64> = Map.empty
-let mutable round = 0L
-let mutable signalCycles : Set<string * string * Signal * int64>= Set.empty
 
 let parsed =
     lines |> Seq.map (fun line ->
@@ -60,86 +55,68 @@ let nodeApplySignal node signal source =
             Conjuction m, Some High
     | Output _, _ -> Output signal, None
 
-let simOneSignal conf signal source dest =
+let simOneSignal n (conf, cycleDetect) signal source dest =
     //printfn $"{source} -> {dest} {signal}"
     match Map.tryFind dest conf with
-    | None -> Map.add dest (Output signal) conf, []
+    | None -> (Map.add dest (Output signal) conf, cycleDetect), []
     | Some node ->
         let node, signal = nodeApplySignal node signal source
         let c = Map.add dest node conf
         let signals = 
             match signal with
             | Some signal -> 
-                //LOG
-                let last = lastSignal |> Map.tryFind (dest, source, signal) |> Option.defaultValue 0L
-                let m = round - last
-                let data = (dest, source, signal, m)
-                if m > 0L && not (Set.contains data signalCycles) && Set.contains dest important then
-                    printfn $"{round}: {m} {source} -> {dest} {signal}"
-                    printfn "%A" c["hb"]
-                    signalCycles <- Set.add data signalCycles
-                lastSignal <- lastSignal |> Map.add (dest, source, signal) round
-
                 destsMap |> Map.find dest |> List.map (fun t -> dest, t, signal)
             | None -> []
-        c, signals
 
-let rec simPhase conf (lowCount, highCount) signals =
+        let cd = 
+            signal |> Option.map (fun signal ->
+                let last = cycleDetect |> Map.tryFind (dest, signal) |> Option.defaultValue 0L
+                let m = n - last
+                cycleDetect |> Map.add (dest, signal) (m+1L))
+            |> Option.defaultValue cycleDetect
+        (c, cd), signals
+
+let rec simPhase n conf (lowCount, highCount) signals =
      match signals with
      | [] -> conf, (lowCount, highCount)
      | _ ->
         let c, newSignals = 
             ((conf, []), signals) ||> List.fold (fun (c, acc) (dest, target, signal) -> 
-                let c2, xs = simOneSignal c signal dest target
+                let c2, xs = simOneSignal n c signal dest target
                 c2, xs @ acc)
         let signalsCount = signals |> List.countBy (fun (_,_,x) -> x) |> Map.ofList
         let lowCount = lowCount + (signalsCount |> Map.tryFind Low |> Option.defaultValue 0)
         let highCount = highCount + (signalsCount |> Map.tryFind High |> Option.defaultValue 0)
-        simPhase c (lowCount, highCount) newSignals
+        simPhase n c (lowCount, highCount) newSignals
 
-let pressButton c =
-    simPhase c (0, 0) [ "button", "broadcaster", Low ]
+let pressButton n c =
+    simPhase n c (0, 0) [ "button", "broadcaster", Low ]
 
-let rec pressButtonRepeat endCond c n (lo, hi) =
-    if n%1_000_000L = 0L then printfn "%A %i" (System.DateTime.Now) n
-    if endCond n c then
-        n, (lo, hi)
-    else
-        let c, (lo1, hi1) = pressButton c
-        pressButtonRepeat endCond c (n + 1L) (lo + lo1, hi + hi1)
+let rec pressButtonRepeat endResult c n (lo, hi) =
+    match endResult n c (lo, hi) with
+    | Some x -> x
+    | None ->
+        let c, (lo1, hi1) = pressButton n c
+        pressButtonRepeat endResult c (n + 1L) (lo + lo1, hi + hi1)
 
-let pressButtonN c n (lo, hi) = pressButtonRepeat (fun x _ -> x = n) c 0 (lo, hi) |> snd
+let pressButtonN c n (lo, hi) = pressButtonRepeat (fun x _ lohi -> if x = n then Some lohi else None) c 0 (lo, hi)
 
-printfn "%A" (pressButton init)
+let part1 () = pressButtonN (init, Map.empty) 1000 (0, 0) |> fun (lo, hi) -> int64 lo * int64 hi
 
-let part1 () = pressButtonN init 1000 (0, 0) |> fun (lo, hi) -> int64 lo * int64 hi
-let endCond = 
-    let mutable seenNodes = set[]
-    let mutable prevC = init
-    let mutable lastChange = Map.empty
-    let isChange a b = 
-        let allHigh m = m |> Map.forall (fun k v -> v = High)
-        match a,b with
-        | FlipFlop a, FlipFlop b -> a <> b
-        | Conjuction a, Conjuction b -> allHigh a <> allHigh b 
-        | _ -> false
-    fun n c ->
-        // Map.keys c |> Seq.filter (fun k -> (Set.contains k important && isChange prevC[k] c[k]) || (not (Set.contains k seenNodes) && Some c[k] <> Map.tryFind k init)) 
-        // |> Seq.iter (fun k -> 
-        //     printfn "change %i %i %A %A" (n-(lastChange |> Map.tryFind k |> Option.defaultValue 0L)) n k (c |> Map.find k)
-        //     lastChange <- lastChange |> Map.add k n
-        //     seenNodes <- Set.add k seenNodes
-        //     //let rem = c |> Map.filter (fun k _ -> not (Set.contains k seenNodes))
-        //     //printfn $"%A{rem}"
-        //     )
-        // prevC <- c
-        round <- n
-        n > 1_000_000L
-        ||
-        match Map.tryFind "rx" c with
-        | Some (Output Low) -> true
-        | _ -> false
-let part2 () = 3733L * 3761L * 4001L * 4021L
+let rec nodesFromEnd n xs =
+    if n = 0 then xs else
+    let xs = xs |> List.collect (fun name -> sourcesMap |> Map.find name)
+    nodesFromEnd (n-1) xs
+let detectCycleIn = nodesFromEnd 2 ["rx"]
 
-printfn $"{part1 ()}" //684125385
+let endResult2 = 
+    fun n (c, cd) _ ->
+        let cycles = detectCycleIn |> List.choose (fun name -> Map.tryFind (name, High) cd)
+        if List.length cycles = List.length detectCycleIn then
+            Some cycles
+        else None
+
+let part2 () = pressButtonRepeat endResult2 (init, Map.empty) 0L (0, 0) |> List.map int64 |> List.reduce (*)
+
+printfn $"{part1 ()}"
 printfn $"{part2 ()}"
