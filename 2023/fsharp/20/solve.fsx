@@ -4,7 +4,7 @@ let lines = System.IO.File.ReadAllLines("input")
 //let lines = System.IO.File.ReadAllLines("sample")
 //let lines = System.IO.File.ReadAllLines("sample2")
 
-let important = set["hb";  "bs"; "js"; "rr"; "zn";  "gr"; "st"; "lg"; "bn"]//;  "hm"; "jv"; "pc"; "vq"]
+let important = set["rx"; "hb";  "bs"; "js"; "rr"; "zb"]//;  "gr"; "st"; "lg"; "bn"]//;  "hm"; "jv"; "pc"; "vq"]
 
 type Signal =
     | Low
@@ -15,6 +15,9 @@ type Node =
     | FlipFlop of bool
     | Conjuction of Map<string, Signal>
     | Output of Signal
+let mutable lastSignal : Map<string * string * Signal, int64> = Map.empty
+let mutable round = 0L
+let mutable signalCycles : Set<string * string * Signal * int64>= Set.empty
 
 let parsed =
     lines |> Seq.map (fun line ->
@@ -66,7 +69,18 @@ let simOneSignal conf signal source dest =
         let c = Map.add dest node conf
         let signals = 
             match signal with
-            | Some signal -> destsMap |> Map.find dest |> List.map (fun t -> dest, t, signal)
+            | Some signal -> 
+                //LOG
+                let last = lastSignal |> Map.tryFind (dest, source, signal) |> Option.defaultValue 0L
+                let m = round - last
+                let data = (dest, source, signal, m)
+                if m > 0L && not (Set.contains data signalCycles) && Set.contains dest important then
+                    printfn $"{round}: {m} {source} -> {dest} {signal}"
+                    printfn "%A" c["hb"]
+                    signalCycles <- Set.add data signalCycles
+                lastSignal <- lastSignal |> Map.add (dest, source, signal) round
+
+                destsMap |> Map.find dest |> List.map (fun t -> dest, t, signal)
             | None -> []
         c, signals
 
@@ -110,19 +124,22 @@ let endCond =
         | Conjuction a, Conjuction b -> allHigh a <> allHigh b 
         | _ -> false
     fun n c ->
-        Map.keys c |> Seq.filter (fun k -> (Set.contains k important && isChange prevC[k] c[k]) || (not (Set.contains k seenNodes) && Some c[k] <> Map.tryFind k init)) 
-        |> Seq.iter (fun k -> 
-            printfn "change %i %i %A %A" (n-(lastChange |> Map.tryFind k |> Option.defaultValue 0L)) n k (c |> Map.find k)
-            lastChange <- lastChange |> Map.add k n
-            seenNodes <- Set.add k seenNodes
-            //let rem = c |> Map.filter (fun k _ -> not (Set.contains k seenNodes))
-            //printfn $"%A{rem}"
-            )
-        prevC <- c
+        // Map.keys c |> Seq.filter (fun k -> (Set.contains k important && isChange prevC[k] c[k]) || (not (Set.contains k seenNodes) && Some c[k] <> Map.tryFind k init)) 
+        // |> Seq.iter (fun k -> 
+        //     printfn "change %i %i %A %A" (n-(lastChange |> Map.tryFind k |> Option.defaultValue 0L)) n k (c |> Map.find k)
+        //     lastChange <- lastChange |> Map.add k n
+        //     seenNodes <- Set.add k seenNodes
+        //     //let rem = c |> Map.filter (fun k _ -> not (Set.contains k seenNodes))
+        //     //printfn $"%A{rem}"
+        //     )
+        // prevC <- c
+        round <- n
+        n > 1_000_000L
+        ||
         match Map.tryFind "rx" c with
         | Some (Output Low) -> true
         | _ -> false
-let part2 () = pressButtonRepeat endCond init 0 (0, 0) |> snd |> fun (lo, hi) -> int64 lo * int64 hi
+let part2 () = 3733L * 3761L * 4001L * 4021L
 
 printfn $"{part1 ()}" //684125385
 printfn $"{part2 ()}"
