@@ -65,22 +65,23 @@ let maxInfo label area start s =
     let maxOddLen = (Seq.length maxOdd + 1) * 2 + 1
     let maxEvenSize = maxEven |> Seq.last
     let maxOddSize = maxOdd |> Seq.last
-    let startDist = d |> Map.find start
     printfn $"{label}"
+    printfn $"{d}"
+    let startDist = d |> Map.find start
     printfn $"{maxEvenLen} {maxOddLen}"
     printfn $"{maxEvenSize} {maxOddSize}"
     printfn $"{startDist}"
     {| EvenFillDist = maxEvenLen; OddFillDist = maxOddLen; EvenFillSize = maxEvenSize; OddFillSize = maxOddSize; CenterDist = startDist |}
 
-let floodFill maxCost dirsAndCost start =
+let floodFill maxCost dirsAndCost =
     let rec loop seen todo =
         match todo with
         | [] -> seen
-        | (p, cost) :: todo ->
+        | (p, cost) :: acc ->
             let seen = Set.add p seen
             let todo = dirsAndCost |> Seq.map (fun (d, c) -> posPlus p d, cost + c) |> Seq.filter (fun (p, c) -> c <= maxCost && not (Set.contains p seen)) |> Seq.toList
-            loop seen todo
-    loop Set.empty [(start, 0)]
+            loop seen (todo @ acc)
+    loop Set.empty [(0L, 0L), 0]
 
 let firstAreaInfo = seqIntoMax spaces |> maxInfo "1x1" spaces start
 //maxInfo "3x3" spaces3x3
@@ -88,7 +89,7 @@ let seq3x3 = seqIntoMax spaces3x3
 printfn $"{seq3x3 |> Seq.length}"
 let areasInfo = areas3x3 |> Map.map (fun d s -> seq3x3 |> maxInfo (sprintf "area %A" d) s (posPlus start (posMult inputDim d)))
 let dirsAndCost = areasInfo |> Map.map (fun _ i -> i.CenterDist) |> Map.toList
-let filledBySteps x = floodFill x dirsAndCost start |> Set.count
+let filledBySteps x = floodFill x dirsAndCost |> Set.count
 let part2() = filledBySteps 50
 
 //printfn $"{part2()}"
