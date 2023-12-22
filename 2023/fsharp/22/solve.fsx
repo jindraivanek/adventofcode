@@ -3,24 +3,6 @@
 let lines = System.IO.File.ReadAllLines("input")
 //let lines = System.IO.File.ReadAllLines("sample")
 
-let memoize f =
-    let cache = System.Collections.Generic.Dictionary<_, _>()
-
-    fun x ->
-        match cache.TryGetValue x with
-        | true, v -> 
-            //printfn "cache hit %A" (x,v)
-            v
-        | _ ->
-            let v = f x
-            cache.Add(x, v)
-            v
-
-let memoize2 f = memoize (fun (x, y) -> f x y) |> fun g -> fun x y -> g (x, y)
-
-type Cube = int * int * int
-type Brick = Set<Cube>
-
 let posPlus (x, y, z) (dx, dy, dz) = (x + dx, y + dy, z + dz)
 
 let fallDir = (0, 0, -1)
@@ -31,8 +13,6 @@ let mkBrick (x1, y1, z1) (x2, y2, z2) =
     else [min z1 z2 .. max z1 z2] |> List.map (fun z -> (x1, y1, z))
     |> set
 let onGround b = Set.exists (fun (_,_,z) -> z <= 0) b
-
-//let withoutBrick = memoize2 (fun bs b -> bs |> Seq.filter ((<>) b) |> Set.unionMany)
 
 let fall otherCubes b =
     let rec go changed b =
@@ -45,14 +25,16 @@ let fall otherCubes b =
 
 let fallAll bricks =
     let cubes = bricks |> Set.unionMany
+    let bricks = bricks |> Seq.indexed |> Seq.toList
     let rec go changed cubes bs =
         let c2, bs2 =
-            bs |> Seq.fold (fun (cubes, acc) b ->
+            bs |> Seq.fold (fun (cubes, acc) (label, b) ->
                 let c1 = cubes - b
-                fall c1 b |> Option.map (fun b2 -> c1 + b2, b2::acc) |> Option.defaultValue (cubes, b::acc)) (cubes, [])
+                fall c1 b |> Option.map (fun b2 -> c1 + b2, (label, b2)::acc) |> Option.defaultValue (cubes, (label, b)::acc)) (cubes, [])
+        let changed = (set bs2 - set bs) |> Set.map fst |> Set.union changed
         if c2 = cubes then changed, set bs
-        else go (changed+1) c2 bs2
-    go 0 cubes (Set.toList bricks)
+        else go changed c2 bs2
+    go Set.empty cubes bricks |> fun (changed, bs) -> Set.count changed, bs |> Set.map snd
 
 let bricks = 
     lines
@@ -67,10 +49,8 @@ let canBeRemoved bricks b =
     let bs2 = bricks |> Set.remove b 
     fallAll bs2 |> fst
 
-printfn "%A" falled
-
 let part1() = falled |> Set.filter (fun b -> canBeRemoved falled b = 0) |> Set.count
-let part2 = falled |> Seq.sumBy (fun b -> canBeRemoved falled b)
+let part2() = falled |> Seq.sumBy (fun b -> canBeRemoved falled b)
 
-//printfn $"{part1()}"
-printfn $"{part2}"
+printfn $"{part1()}"
+printfn $"{part2()}"
