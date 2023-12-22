@@ -51,8 +51,8 @@ let fallAll bricks =
                 let c1 = cubes - b
                 fall c1 b |> Option.map (fun b2 -> c1 + b2, b2::acc) |> Option.defaultValue (cubes, b::acc)) (cubes, [])
         if c2 = cubes then changed, set bs
-        else go true c2 bs2
-    go false cubes (Set.toList bricks)
+        else go (changed+1) c2 bs2
+    go 0 cubes (Set.toList bricks)
 
 let bricks = 
     lines
@@ -65,12 +65,12 @@ let falled = fallAll bricks |> snd
 
 let canBeRemoved bricks b =
     let bs2 = bricks |> Set.remove b 
-    fallAll bs2 |> fst |> not
+    fallAll bs2 |> fst
 
 printfn "%A" falled
 
-let part1 = falled |> Set.filter (canBeRemoved falled) |> Set.count
-let part2 = 0
+let part1() = falled |> Set.filter (fun b -> canBeRemoved falled b = 0) |> Set.count
+let part2 = falled |> Seq.sumBy (fun b -> canBeRemoved falled b)
 
-printfn $"{part1}"
+//printfn $"{part1()}"
 printfn $"{part2}"
