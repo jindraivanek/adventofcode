@@ -12,26 +12,37 @@ let (|Match|_|) (pat: string) (inp: string) =
 let lines = System.IO.File.ReadAllLines("input")
 
 let parse lines =
-    lines |> Seq.map (fun line ->
+    lines
+    |> Seq.map (fun line ->
         match line with
-        | Match "Card +([0-9]+): +(.*) +\| +(.*)" [ _; winning; numbers] ->
-            let winning = winning.Split(' ', System.StringSplitOptions.RemoveEmptyEntries) |> Array.map int |> Set.ofArray
-            let numbers = numbers.Split(' ', System.StringSplitOptions.RemoveEmptyEntries) |> Array.map int
+        | Match "Card +([0-9]+): +(.*) +\| +(.*)" [ _; winning; numbers ] ->
+            let winning =
+                winning.Split(' ', System.StringSplitOptions.RemoveEmptyEntries)
+                |> Array.map int
+                |> Set.ofArray
+
+            let numbers =
+                numbers.Split(' ', System.StringSplitOptions.RemoveEmptyEntries)
+                |> Array.map int
+
             let winCount = numbers |> Seq.filter (fun x -> Set.contains x winning) |> Seq.length
             winCount
         | _ -> failwith "invalid input")
 
 let score x =
-    if x = 0 then 0 else 2.**float(x-1) |> int
+    if x = 0 then 0 else 2. ** float (x - 1) |> int
 
 let cardCopies xs =
     let n = Seq.length xs
     let xs = xs |> Seq.indexed
     let m = xs |> Seq.map (fun (i, _) -> i, 1) |> Map.ofSeq
-    let counts = (m, xs) ||> Seq.fold (fun m (i, x) ->
-        (m, [i+1 .. i+x] |> List.filter (fun j -> j < n)) ||> Seq.fold (fun m j -> 
-            Map.add j (m[j] + m[i]) m)
-        )
+
+    let counts =
+        (m, xs)
+        ||> Seq.fold (fun m (i, x) ->
+            (m, [ i + 1 .. i + x ] |> List.filter (fun j -> j < n))
+            ||> Seq.fold (fun m j -> Map.add j (m[j] + m[i]) m))
+
     counts |> Map.toSeq |> Seq.sumBy snd
 
 let part1 = lines |> parse |> Seq.map score |> Seq.sum

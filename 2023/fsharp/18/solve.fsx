@@ -88,6 +88,7 @@ let pointsToLine (x1, y1) (x2, y2) =
             for i in 0..d do
                 yield x1 + i * dx, y1 + i * dy
         }
+
     r
 
 let fillGridByFlood grid =
@@ -135,8 +136,10 @@ let fillGridByRemapedIntervals intervals =
         intervals
         |> Seq.collect (fun (p1, p2) -> pointsToLine (posMult gridMap[p1] 2) (posMult gridMap[p2] 2))
         |> set
+
     let filled = fillGridByFlood grid
     let gridMapRev = gridMap |> Map.toSeq |> Seq.map (fun (k, v) -> v, k) |> Map.ofSeq
+
     let gridSize (a, b) =
         if a % 2 = 0 || b % 2 = 0 then
             0L

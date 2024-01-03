@@ -8,7 +8,7 @@ let memoize f =
 
     fun x ->
         match cache.TryGetValue x with
-        | true, v -> 
+        | true, v ->
             //printfn "cache hit %A" (x,v)
             v
         | _ ->
@@ -16,7 +16,8 @@ let memoize f =
             cache.Add(x, v)
             v
 
-let memoize2 f = memoize (fun (x, y) -> f x y) |> fun g -> fun x y -> g (x, y)
+let memoize2 f =
+    memoize (fun (x, y) -> f x y) |> fun g -> fun x y -> g (x, y)
 
 let printGrid s =
     let minX = s |> Seq.map fst |> Seq.min
@@ -38,6 +39,7 @@ type SetVariant = int64
 let fromSetVariant, toSetVariant =
     let mutable cache = Map.empty<(int * int) * Set<int64 * int64>, SetVariant>
     let mutable revCache = Map.empty
+
     let toSV s =
         match Map.tryFind s cache with
         | Some x -> x
@@ -46,18 +48,19 @@ let fromSetVariant, toSetVariant =
             cache <- Map.add s x cache
             revCache <- Map.add x s revCache
             x
+
     let fromSV x = Map.find x revCache
     fromSV, toSV
 
 let memSetVariantFromSeqFunc f =
-    memoize <|
-        fun (svs: Set<SetVariant>) ->
-            let s = Seq.map fromSetVariant svs
-            f s |> toSetVariant
+    memoize
+    <| fun (svs: Set<SetVariant>) ->
+        let s = Seq.map fromSetVariant svs
+        f s |> toSetVariant
 
 let memSetVariantSeqFunc f =
-    memoize <|
-    fun sv ->
+    memoize
+    <| fun sv ->
         let s = fromSetVariant sv
         f s |> Seq.map toSetVariant |> set
 
@@ -83,7 +86,11 @@ let dirs3x3 =
 let areaDirs3x3 = (0L, 0L) :: dirs3x3
 
 let printGrids dim ss =
-    ss |> Map.toSeq |> Seq.collect (fun ((dx, dy), s) -> s |> Seq.map (fun x -> posMult dim (int64 dx, int64 dy) |> posPlus x)) |> set |> printGrid
+    ss
+    |> Map.toSeq
+    |> Seq.collect (fun ((dx, dy), s) -> s |> Seq.map (fun x -> posMult dim (int64 dx, int64 dy) |> posPlus x))
+    |> set
+    |> printGrid
 
 let indexed =
     lines
@@ -113,23 +120,42 @@ let getArea d s =
 
 let areas3x3 = areaDirs3x3 |> Seq.map (fun d -> d, getArea d spaces3x3) |> Map.ofSeq
 
-let isOutside (x, y) = x < 0L || y < 0L || x >= dimX || y >= dimY
+let isOutside (x, y) =
+    x < 0L || y < 0L || x >= dimX || y >= dimY
+
 let mirror (x, y) =
     if x < 0L then (-1, 0), (dimX + x, y)
-    elif y < 0L then (0,-1),  (x, dimY + y)
+    elif y < 0L then (0, -1), (x, dimY + y)
     elif x >= dimX then (1, 0), (x - dimX, y)
     elif y >= dimY then (0, 1), (x, y - dimY)
     else (0, 0), (x, y)
 
 let step spaces p =
-    dirs |> Seq.map (posPlus p) |> Seq.filter (fun p -> Set.contains p spaces || isOutside p) |> Seq.map mirror
+    dirs
+    |> Seq.map (posPlus p)
+    |> Seq.filter (fun p -> Set.contains p spaces || isOutside p)
+    |> Seq.map mirror
 
-let allSteps = memSetVariantSeqFunc <| fun (_, s) -> 
-    s |> Seq.collect (step spaces) |> Seq.groupBy fst |> Seq.map (fun (p, xs) -> p, xs |> Seq.map snd |> set)
+let allSteps =
+    memSetVariantSeqFunc
+    <| fun (_, s) ->
+        s
+        |> Seq.collect (step spaces)
+        |> Seq.groupBy fst
+        |> Seq.map (fun (p, xs) -> p, xs |> Seq.map snd |> set)
 
-let apply = memoize <| fun plots -> 
-    plots |> Map.toSeq |> Seq.collect (fun (area, s) -> allSteps s |> Seq.map fromSetVariant |> Seq.map (fun (areaDir, x) -> posPlus area areaDir, x))
-    |> Seq.groupBy fst |> Seq.map (fun (p, xs) -> p, toSetVariant (p, xs |> Seq.map snd |> Set.unionMany)) |> Map.ofSeq
+let apply =
+    memoize
+    <| fun plots ->
+        plots
+        |> Map.toSeq
+        |> Seq.collect (fun (area, s) ->
+            allSteps s
+            |> Seq.map fromSetVariant
+            |> Seq.map (fun (areaDir, x) -> posPlus area areaDir, x))
+        |> Seq.groupBy fst
+        |> Seq.map (fun (p, xs) -> p, toSetVariant (p, xs |> Seq.map snd |> Set.unionMany))
+        |> Map.ofSeq
 
 let allStepsSeq _ plots =
     Seq.unfold (fun s -> Some(s, apply s)) plots
@@ -138,16 +164,19 @@ let allStepsN g s n =
     allStepsSeq g s
     |> Seq.indexed
     |> Seq.map (fun (i, x) ->
-        if i%10 = 0 then printfn "%A" (i)
+        if i % 10 = 0 then
+            printfn "%A" (i)
+
         x)
     |> Seq.nth n
 
-let startPlots = Map.ofSeq [ (0,0), toSetVariant ((0,0), set [start]) ]
+let startPlots = Map.ofSeq [ (0, 0), toSetVariant ((0, 0), set [ start ]) ]
 
 let startSeq spaces =
     allStepsSeq spaces startPlots |> Seq.cache
+
 let countN spaces n =
-    let m = allStepsN spaces startPlots n 
+    let m = allStepsN spaces startPlots n
     //printGrids inputDim m
     m |> Map.values |> Seq.sumBy (fromSetVariant >> snd >> Set.count)
 

@@ -8,23 +8,28 @@ let (|Match|_|) (pat: string) (inp: string) =
         Some(List.tail [ for g in m.Groups -> g.Value ])
     else
         None
+
 let lines = System.IO.File.ReadAllLines("input")
 //let lines = System.IO.File.ReadAllLines("sample")
 
 let instructions = lines[0]
-let paths = 
-    lines |> Seq.skip 2 |> Seq.collect (function
-        | Match "(.*) = \((.*), (.*)\)" [n; l; r] -> [(n, 'L'), l; (n, 'R'), r])
-    |> Map.ofSeq    
+
+let paths =
+    lines
+    |> Seq.skip 2
+    |> Seq.collect (function
+        | Match "(.*) = \((.*), (.*)\)" [ n; l; r ] -> [ (n, 'L'), l; (n, 'R'), r ])
+    |> Map.ofSeq
 
 let instrCycle = Seq.initInfinite (fun i -> instructions.[i % instructions.Length])
 
-let makeSteps xs startNode = 
+let makeSteps xs startNode =
     (startNode, xs) ||> Seq.scan (fun n dir -> paths.[n, dir])
-    
+
 
 let findEndCycles xs startNodes endCondition =
-    startNodes |> List.map (fun n ->
+    startNodes
+    |> List.map (fun n ->
         let ends =
             makeSteps xs n
             |> Seq.indexed
@@ -32,21 +37,32 @@ let findEndCycles xs startNodes endCondition =
             |> Seq.map fst
             |> Seq.take 2
             |> Seq.toList
+
         let offset = ends.[0]
         let cycleLength = ends.[1] - offset
         assert (offset = cycleLength)
         cycleLength)
 
-let part1 = makeSteps instrCycle "AAA" |> Seq.takeWhile (((=) "ZZZ") >> not)  |> Seq.length
+let part1 =
+    makeSteps instrCycle "AAA" |> Seq.takeWhile (((=) "ZZZ") >> not) |> Seq.length
+
 printfn $"{part1}"
 
-let startNodes = paths |> Map.keys |> Seq.map fst |> Seq.filter (fun s -> s.EndsWith("A")) |> Seq.distinct |> Seq.toList
-let endIndexes = findEndCycles instrCycle startNodes (fun n -> n.EndsWith "Z") |> List.map int64
+let startNodes =
+    paths
+    |> Map.keys
+    |> Seq.map fst
+    |> Seq.filter (fun s -> s.EndsWith("A"))
+    |> Seq.distinct
+    |> Seq.toList
+
+let endIndexes =
+    findEndCycles instrCycle startNodes (fun n -> n.EndsWith "Z") |> List.map int64
+
 let firstStep = List.min endIndexes
 
 let gcd a b =
-    let rec gcd' a b =
-        if b = 0L then a else gcd' b (a % b)
+    let rec gcd' a b = if b = 0L then a else gcd' b (a % b)
     gcd' (abs a) (abs b)
 
 let part2 = endIndexes |> List.fold (fun acc i -> (acc * i) / gcd acc i) firstStep
