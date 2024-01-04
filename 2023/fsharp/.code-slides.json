@@ -1,42 +1,57 @@
 [
-    {
-      "id": "4yup6oh3t80000",
-      "title": "aoc",
-      "isProject": true,
-      "children": [
-        {
-          "id": "188ca3flzf9c00",
-          "title": "--- Day 2: Cube Conundrum ---",
-          "isProject": false,
-          "children": [],
-          "desc": "",
-          "highlightLines": [
-            [
-              13,
-              22
-            ]
-          ],
-          "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
-          "parentId": "4yup6oh3t80000"
-        },
-        {
-          "id": "ni1ukb5qf0w00",
-          "title": "Parsing with Match",
-          "isProject": false,
-          "children": [],
-          "desc": "",
-          "highlightLines": [
-            [
-              24,
-              40
-            ]
-          ],
-          "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
-          "parentId": "4yup6oh3t80000"
-        }
-      ],
-      "desc": "",
-      "highlightLines": [],
-      "slideFilePath": ""
-    }
-  ]
+  {
+    "id": "4yup6oh3t80000",
+    "title": "aoc",
+    "isProject": true,
+    "children": [
+      {
+        "id": "188ca3flzf9c00",
+        "title": "--- Day 2: Cube Conundrum ---",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            1,
+            17
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "ni1ukb5qf0w00",
+        "title": "Parsing with Match",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            33,
+            50
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "3bf34m1d45w000",
+        "title": "Match active pattern",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            23,
+            29
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      }
+    ],
+    "desc": "",
+    "highlightLines": [],
+    "slideFilePath": ""
+  }
+]
