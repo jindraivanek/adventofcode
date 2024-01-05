@@ -130,25 +130,32 @@ let chunkBy f xs =
 
     go [] xs
 
-let combNum xs ys =
+let combNum xs gs =
     let rec recF =
-        memoizeRec <| fun recF (xs, curY, ys) ->
-            let recF x cy y = recF (x, cy, y)
-            match xs, curY, ys with
-            | [], None, [] 
+        memoizeRec
+        <| fun recF (xs, curG, gs) ->
+            let recF x curG g = recF (x, curG, g)
+
+            match xs, curG, gs with
+            // correct combination
+            | [], None, []
             | [], Some 0, [] -> 1L
-            | '#' :: xs, Some y, ys 
-            | '#' :: xs, None, (y::ys) 
-            | '?' :: xs, Some y, ys when y > 0
-                -> recF xs (Some (y - 1)) ys
-            | '.' :: xs, Some 0, ys 
-            | '.' :: xs, None, ys 
-            | '?' :: xs, Some 0, ys 
-                -> recF xs None ys
+            // '#' part
+            | '#' :: xs, Some g, gs
+            | '#' :: xs, None, (g :: gs)
+            | '?' :: xs, Some g, gs when g > 0 -> recF xs (Some(g - 1)) gs
+            // '.' part
+            | '.' :: xs, Some 0, gs
+            | '.' :: xs, None, gs
+            | '?' :: xs, Some 0, gs -> recF xs None gs
+            // '?' as '.' at the end
             | '?' :: xs, None, [] -> recF xs None []
-            | '?' :: xs, None, y :: ys -> recF xs (Some (y - 1)) ys + recF xs None (y :: ys)
+            // main recursion - '?' as '.' or '#'
+            | '?' :: xs, None, g :: gs -> recF xs (Some(g - 1)) gs + recF xs None (g :: gs)
+            // invalid combination
             | _ -> 0L
-    recF (xs, None, ys)
+
+    recF (xs, None, gs)
 
 let parsed =
     lines
