@@ -77,7 +77,7 @@ let validSpeed x1 x2 d1 d2 t1 t2 =
 
 let findSpeedForPair t1 ((x1, y1, z1), (dx1, dy1, dz1)) ((x2, y2, z2), (dx2, dy2, dz2)) =
     seq {
-        for t2 in t1+1L .. maxT do
+        for t2 in 1L .. maxT do
             match validSpeed x1 x2 dx1 dx2 t1 t2, validSpeed y1 y2 dy1 dy2 t1 t2, validSpeed z1 z2 dz1 dz2 t1 t2 with
             | Some dx, Some dy, Some dz -> 
                 printfn $"({x1}, {y1}, {z1}) ({x2}, {y2}, {z2}) -> ({dx}, {dy}, {dz}) at {t1} {t2}"
@@ -86,11 +86,11 @@ let findSpeedForPair t1 ((x1, y1, z1), (dx1, dy1, dz1)) ((x2, y2, z2), (dx2, dy2
     }
 
 let findSpeed xs =
-    let rec go s t1 h1 = function
-        | [] -> s
+    let rec go s1 t1 h1 = function
+        | [] -> seq [s1]
         | h2 :: rest ->
-            findSpeedForPair t1 h1 h2 |> Seq.map (fun (t2, s) -> go s t2 h2 rest) 
-    go (0L, 0L, 0L) 0L (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList)
+            findSpeedForPair t1 h1 h2 |> Seq.filter (fun (t2, s) -> s1 = None || Some s = s1) |> Seq.collect (fun (t2, s) -> go (Some s) t2 h2 rest) 
+    go None 1L (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList)
 
 let absMinBy f xs =
     xs
@@ -102,7 +102,7 @@ let findSpeeds() =
     let hails = hails int64
     let h1 = hails |> Seq.head
     let h2 = hails |> Seq.nth 1
-    findSpeed h1 h2 |> absMinBy (fun (dx, dy, dz) -> abs dx + abs dy + abs dz)
+    findSpeed hails |> Seq.head
     |> fun it -> printfn $" {h1} {h2} -> {it}"
 
 let part2 =
