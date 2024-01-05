@@ -1,7 +1,8 @@
 #time
 
-//let lines = System.IO.File.ReadAllLines("input")
-let lines = System.IO.File.ReadAllLines("sample")
+let lines = System.IO.File.ReadAllLines("input")
+//let lines = System.IO.File.ReadAllLines("sample")
+//let lines = System.IO.File.ReadAllLines("sample2")
 
 let memoize f =
     let cache = System.Collections.Generic.Dictionary<_, _>()
@@ -15,10 +16,24 @@ let memoize f =
             let v = f x
             cache.Add(x, v)
             v
+            
+let memoizeRec f =
+    let cache = System.Collections.Generic.Dictionary<_, _>()
+
+    let rec loop x =
+        match cache.TryGetValue x with
+        | true, v -> 
+            v
+        | _ ->
+            let v = f loop x
+            cache.Add(x, v)
+            v
+            
+    loop
 
 let memoize2 f = memoize (fun (x, y) -> f x y) |> fun g -> fun x y -> g (x, y)
 
-let printGrid s =
+let printGrid g start s =
     let minX = s |> Seq.map fst |> Seq.min
     let maxX = s |> Seq.map fst |> Seq.max
     let minY = s |> Seq.map snd |> Seq.min
@@ -27,7 +42,10 @@ let printGrid s =
 
     for y in minY..maxY do
         for x in minX..maxX do
-            if Set.contains (x, y) s then printf "#" else printf "."
+            if (x,y) = start then printf "S"
+            elif Set.contains (x, y) s then printf "*" 
+            elif not (Set.contains (x, y) g) then printf "#"
+            else printf "."
 
         printfn ""
 
@@ -66,31 +84,21 @@ let inline mod_ a b = (a % b + b) % b
 let inline posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 let posMinus (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 let inline posMult (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
+let inline posDiv (x1, y1) (x2, y2) = (x1 / x2, y1 / y2)
 let posModulo (x1, y1) (x2, y2) = (mod_ x1 x2), (mod_ y1 y2)
 let dirNeg (x, y) = (-x, -y)
 let dirs = [ (0L, -1L); (-1L, 0L); (0L, 1L); (1L, 0L) ]
 
-let dirs3x3 =
-    [ (-1L, -1L)
-      (0L, -1L)
-      (1L, -1L)
-      (-1L, 0L)
-      (1L, 0L)
-      (-1L, 1L)
-      (0L, 1L)
-      (1L, 1L) ]
-
-let areaDirs3x3 = (0L, 0L) :: dirs3x3
-
-let printGrids dim ss =
-    ss |> Map.toSeq |> Seq.collect (fun ((dx, dy), s) -> s |> Seq.map (fun x -> posMult dim (int64 dx, int64 dy) |> posPlus x)) |> set |> printGrid
+let printGrids dim g start ss =
+    ss |> Map.toSeq |> Seq.collect (fun ((dx, dy), s) -> s |> Seq.map (fun x -> posMult dim (int64 dx, int64 dy) |> posPlus x)) |> set |> printGrid g start
 
 let indexed =
     lines
     |> Array.mapi (fun y line ->
         line
         |> Seq.mapi (fun x c -> (int64 x, int64 y), c)
-        |> Seq.filter (fun (_, c) -> c <> '#'))
+        //|> Seq.filter (fun (_, c) -> c <> '#')
+        )
     |> Seq.concat
     |> Seq.toList
 
@@ -99,19 +107,10 @@ let dimY = int64 lines.Length
 let inputDim = dimX, dimY
 printfn $"{inputDim}"
 let start = indexed |> Seq.find (fun (_, c) -> c = 'S') |> fst
-let spaces = indexed |> Seq.map fst |> set
-
-let spaces3x3 =
-    areaDirs3x3
-    |> Seq.collect (fun d -> spaces |> Seq.map (posPlus (posMult inputDim d)))
-    |> set
-
-let getArea d s =
-    let x = spaces |> Seq.map (posPlus (posMult inputDim d)) |> set
-    //printGrid x
-    x
-
-let areas3x3 = areaDirs3x3 |> Seq.map (fun d -> d, getArea d spaces3x3) |> Map.ofSeq
+let spaces = indexed |> Seq.filter (fun (_, c) -> c <> '#') |> Seq.map fst |> set
+let walls = indexed |> Seq.filter (fun (_, c) -> c = '#') |> Seq.map fst |> set
+let wallsFromStart = walls |> Seq.map (fun x -> posMinus x start) |> set
+let wallsByDist = wallsFromStart |> Seq.countBy (fun (x, y) -> abs x + abs y) |> Seq.map (fun (k,v) -> k, int64 v) |> Map.ofSeq
 
 let isOutside (x, y) = x < 0L || y < 0L || x >= dimX || y >= dimY
 let mirror (x, y) =
@@ -138,7 +137,6 @@ let allStepsN g s n =
     allStepsSeq g s
     |> Seq.indexed
     |> Seq.map (fun (i, x) ->
-        if i%10 = 0 then printfn "%A" (i)
         x)
     |> Seq.nth n
 
@@ -148,8 +146,16 @@ let startSeq spaces =
     allStepsSeq spaces startPlots |> Seq.cache
 let countN spaces n =
     let m = allStepsN spaces startPlots n 
-    //printGrids inputDim m
+    //printGrids inputDim spaces start (Map.map (fun _ s -> fromSetVariant s |> snd) m)
     m |> Map.values |> Seq.sumBy (fromSetVariant >> snd >> Set.count)
+
+let countNByAreas spaces n =
+    let m = allStepsN spaces startPlots n 
+    //printGrids inputDim spaces start (Map.map (fun _ s -> fromSetVariant s |> snd) m)
+    m |> Map.toList |> List.map (fun (k, v) -> k, v |> fromSetVariant |> snd |> Set.count)
+
+[1..262] |> List.map (fun x -> x, countNByAreas spaces x) |> List.iter (printfn "countNByAreas %A")
+//[1..131] |> List.map (fun x -> x, countN spaces x) |> List.iter (printfn "countN %A")
 
 let part1 () = countN spaces 64
 //printfn $"{part1()}"
@@ -238,7 +244,73 @@ let part1 () = countN spaces 64
 
 // let filledBySteps x =
 //     floodFill x dirsAndCost |> Set.count |> (*) (firstAreaInfo.FillSize x)
-//[1..50] |> List.map (countN spaces) |> List.iter (printfn "%A")
+[1..50] |> List.map (countN spaces) |> List.iter (printfn "%A")
 
-let part2 () = countN spaces 500
-printfn $"{part2 ()}"
+let step2 spaces p =
+    dirs |> Seq.map (fun x -> posPlus p x) |> Seq.filter (fun p -> Set.contains (posModulo p inputDim) spaces)
+
+let allSteps2 s = 
+    s |> Seq.collect (step2 spaces) |> set
+
+let allStepsSeq2 s =
+    Seq.unfold (fun s -> Some(s, allSteps2 s)) s |> Seq.cache
+    
+let stepsSeq = allStepsSeq2 (set [start])
+
+let stepsN = memoize <| fun n -> Seq.nth n stepsSeq 
+
+let additionsSeq = memoize <| fun n ->
+    if n < 3 then stepsN n
+    else
+        let s = stepsN n - stepsN (n-2)
+        //printfn "%i" n
+        //printGrid spaces start s
+        s
+    //|> Seq.map (fun x -> posModulo x inputDim) |> Seq.distinct
+    |> Seq.length
+    
+//[1..100] |> List.map (fun x -> x, stepsN x) |> List.iter (printfn "stepsN %A")
+//[1..100] |> List.map (fun x -> x, additionsSeq x) |> List.iter (printfn "addition %A")
+    
+let additionSummed = memoizeRec <| fun f n -> 
+    let x = additionsSeq n
+    if n < 3 then x 
+    else x + f (n-2)
+
+//[1..300] |> List.map (fun x -> x, additionSummed x) |> List.iter (printfn "sum %A")
+
+//wallsByDist |> Map.iter (printfn "d%A -> %A")
+let isWallFromStart p =
+    let p2 = posPlus p start
+    let p3 = posModulo p2 inputDim
+    //printfn $"{p} {p2} {p3}"
+    Set.contains p3 walls
+
+let wallsForN n =
+    [n .. -1L .. 0L] |> Seq.collect (fun x -> [x, n-x; -x, -(n-x); -x, n-x; x, -(n-x)]) |> Seq.distinct |> Seq.filter isWallFromStart |> Seq.length |> int64
+
+//[1L..10L] |> List.map (fun x -> x, wallsForN x) |> List.iter (printfn "%A") 
+let countMD n =
+    (n+1L) * (n+1L) - ([n .. -2L .. 0L] |> Seq.sumBy (fun x -> (wallsForN x)))
+
+//[1..10] |> List.map (additionSummed) |> List.iter (printfn "%A")
+
+let part2 () = 
+    let inDist n = (n+1L)*(n+1L) - (if n < 2L then 0L else (n-1L)*(n-1L))
+    let a = (26501365L - 65L) / 131L 
+    let oddFill = 7787L
+    let evenFill = 7791L
+    let fill x = if x % 2L = 0L then evenFill else oddFill
+    let n = (2L * a + 1L)
+    let areas = [0L .. a] |> Seq.sumBy (fun i -> 2L * i + 1L) 
+    let borders = [((-1, 0), 2011); ((0, -1), 2005); ((0, 1), 2005); ((1, 0), 1999)]
+    let bordersDiag = [((-1, -1), 3956); ((-1, 1), 3960); ((1, -1), 3948); ((1, 1), 3946)]
+    let inner = [0L .. a] |> Seq.sumBy (fun i -> inDist i * fill (i+1L)) 
+    let outer = int64 (borders |> Seq.sumBy snd) + int64 (bordersDiag |> Seq.sumBy snd) * a
+    inner + outer
+    //(a+1L) * (a+1L) * oddFill + a*a * evenFill
+
+//printfn $"{part2 ()}"
+
+
+131. * 131.
