@@ -5,6 +5,16 @@
     "isProject": true,
     "children": [
       {
+        "id": "lgzoq02aqxo00",
+        "title": "intro",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\intro.md",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
         "id": "188ca3flzf9c00",
         "title": "--- Day 2: Cube Conundrum ---",
         "isProject": false,
