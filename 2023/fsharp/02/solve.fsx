@@ -66,13 +66,14 @@ let filterGames games =
         |> not)
     |> Seq.map fst
 
+let part1 = lines |> Seq.map parse |> filterGames |> Seq.sum
+
 let gamePower (_, cubes) =
     cubes
     |> List.groupBy fst
     |> List.map (fun (_, cubes) -> cubes |> List.map snd |> List.max)
     |> List.reduce (*)
 
-let part1 = lines |> Seq.map parse |> filterGames |> Seq.sum
 let part2 = lines |> Seq.map parse |> Seq.map gamePower |> Seq.sum
 
 printfn $"{part1}"

@@ -4,8 +4,6 @@
 
 **Jindřich Ivánek** - [jindraivanek.hashnode.dev](https://jindraivanek.hashnode.dev)
 
-F# developer for > 10 years
-
 ## Outline
 - Day 2 - parsing with Regex active pattern
 - Day 14 - Moving in grid with `Set` 
