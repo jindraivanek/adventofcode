@@ -308,6 +308,56 @@
         ],
         "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
         "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1ximv1puksu800",
+        "title": "--- Day 13: Point of Incidence ---",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            1,
+            30
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\13\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "28javt6iijrw00",
+        "title": "parse",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            38,
+            51
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\13\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "5n1fholxmcw000",
+        "title": "find reflection",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\13\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "oznz8ej5ee800",
+        "title": "sol",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\13\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
       }
     ],
     "desc": "",
