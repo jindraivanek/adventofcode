@@ -100,7 +100,7 @@ let unfold (xs: string, cs) =
 let part1 () =
     parsed |> Seq.map (fun (xs, cs) -> lineCombNum xs cs) |> Seq.sum
 
-printfn $"{part1 ()}"
+printfn $"{part1 ()}" // 7191
 
 let part2 () =
     parsed
@@ -108,4 +108,4 @@ let part2 () =
     |> Seq.map (fun (xs, cs) -> lineCombNum xs cs |> int64)
     |> Seq.sum
 
-printfn $"{part2 ()}"
+printfn $"{part2 ()}" // 6512849198636
