@@ -22,8 +22,8 @@
         "desc": "",
         "highlightLines": [
           [
-            1,
-            22
+            2,
+            18
           ]
         ],
         "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
@@ -57,6 +57,256 @@
           ]
         ],
         "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "2rijv4o3c3q000",
+        "title": "part1",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            57,
+            69
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "4d81cpwk65o000",
+        "title": "part2 description",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            20,
+            23
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "3qvakd16ebm000",
+        "title": "part2",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            70,
+            76
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\02\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "5cxqjrx2fv4000",
+        "title": "--- Day 14: Parabolic Reflector Dish ---",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "dayztiretw800",
+        "title": "part2",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            34,
+            39
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1xfea48xsh2800",
+        "title": "create Sets",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            45,
+            59
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "3dh95ygs29c00",
+        "title": "slideRock",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            60,
+            71
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "4y2kcrpqq4w000",
+        "title": "slideAllRocks",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            73,
+            81
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1m1heg90y08w00",
+        "title": "part1 sol",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            83,
+            92
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "2nbwsxp7tvs000",
+        "title": "slideAllRocksCycle",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            93,
+            103
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "20aaqujj0kio00",
+        "title": "part2 sol",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            104,
+            113
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\14\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "5gcbb8iu3ls000",
+        "title": "--- Day 8: Haunted Wasteland ---",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            1,
+            22
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "4twfi5dwywa000",
+        "title": "parse",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            53,
+            64
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "qd1jrv81sb40",
+        "title": "part1 sol",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            65,
+            72
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "ryup8gtjq0w00",
+        "title": "part2",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            24,
+            39
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "xhpjxnym6dc00",
+        "title": "findEndCycles",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            75,
+            89
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "3crc4u46jyu000",
+        "title": "endIndexes",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            91,
+            110
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\08\\solve.fsx",
         "parentId": "4yup6oh3t80000"
       }
     ],
