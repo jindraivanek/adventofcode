@@ -1,11 +1,5 @@
 #r "nuget: Rationals"
-#r "nuget: MathNet.Numerics.FSharp"
-#r "nuget: Flips"
 open Rationals
-open MathNet.Numerics.LinearAlgebra
-open Flips
-open Flips.Types
-open Flips.SliceMap
 #time
 
 //let lines = System.IO.File.ReadAllLines("input")
@@ -13,7 +7,7 @@ let lines = System.IO.File.ReadAllLines("sample")
 
 let allPairs xs =
     xs
-    |> Seq.mapi (fun i x1 -> xs |> Seq.skip i |> Seq.map (fun x2 -> x1, x2))
+    |> Seq.mapi (fun i x1 -> xs |> Seq.skip (i+1) |> Seq.map (fun x2 -> x1, x2))
     |> Seq.concat
 
 let (=~) x y = abs (x - y) < 0.00001
@@ -68,19 +62,44 @@ let part1 =
     //intersectionInTestArea 7 27
     intersectionInTestArea (num 200000000000000L) (num 400000000000000L)
 
-let maxT = 6L
+let maxT = 10L
+let maxD = 3L
+let speedVariants =
+    seq {
+        for dx in 1L .. maxD do
+            for dy in 1L .. maxD do
+                for dz in 1L .. maxD do
+                    yield dx, dy, dz
+                    yield -dx, dy, dz
+                    yield dx, -dy, dz
+                    yield dx, dy, -dz
+                    yield -dx, -dy, dz
+                    yield dx, -dy, -dz
+                    yield -dx, dy, -dz
+                    yield -dx, -dy, -dz
+    }
 
 let validSpeed x1 x2 d1 d2 t1 t2 =
     let a = x1 - x2 + t1 * d1 - t2 * d2
     let b = t1 - t2
     if b <> 0L && a % b = 0L then Some (a / b) else None
 
+let getTime x1 x2 d1 d2 t1 d =
+    let a = x1 - x2 + t1 * d1 - t1 * d
+    let b = d2 - d
+    if b <> 0L && a % b = 0L then Some (a / b) else None
+
+let getTimeRational x1 x2 d1 d2 t1 d : Rational option =
+    let a = x1 - x2 + t1 * d1 - t1 * d
+    let b = d2 - d
+    if b <> Rational 0 then Some (a / b) else None
+
 let findSpeedForPair t1 ((x1, y1, z1), (dx1, dy1, dz1)) ((x2, y2, z2), (dx2, dy2, dz2)) =
     seq {
-        for t2 in 1L .. maxT do
+        for t2 in 0L .. maxT do
             match validSpeed x1 x2 dx1 dx2 t1 t2, validSpeed y1 y2 dy1 dy2 t1 t2, validSpeed z1 z2 dz1 dz2 t1 t2 with
             | Some dx, Some dy, Some dz -> 
-                printfn $"({x1}, {y1}, {z1}) ({x2}, {y2}, {z2}) -> ({dx}, {dy}, {dz}) at {t1} {t2}"
+                //printfn $"({x1}, {y1}, {z1}) ({x2}, {y2}, {z2}) -> ({dx}, {dy}, {dz}) at {t1} {t2}"
                 yield t2, (dx, dy, dz)
             | _ -> ()
     }
@@ -90,7 +109,59 @@ let findSpeed xs =
         | [] -> seq [s1]
         | h2 :: rest ->
             findSpeedForPair t1 h1 h2 |> Seq.filter (fun (t2, s) -> s1 = None || Some s = s1) |> Seq.collect (fun (t2, s) -> go (Some s) t2 h2 rest) 
-    go None 1L (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList)
+    seq {
+        for t1 in 1L .. maxT do
+            yield! go None t1 (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList) |> Seq.map (fun d -> t1, d)
+    }
+
+let findTimeForPair t1 (dx, dy, dz) ((x1, y1, z1), (dx1, dy1, dz1)) ((x2, y2, z2), (dx2, dy2, dz2)) =
+    seq {
+        match getTime x1 x2 dx1 dx2 t1 dx, getTime y1 y2 dy1 dy2 t1 dy, getTime z1 z2 dz1 dz2 t1 dz with
+        | Some t2x, Some t2y, Some t2z when t2x = t2y && t2y = t2z -> 
+            //printfn $"({x1}, {y1}, {z1}) ({x2}, {y2}, {z2}) -> ({dx}, {dy}, {dz}) at {t1} {t2}"
+            yield t2x, (dx, dy, dz)
+        | _ -> ()
+    }
+
+let findTimeForPairR t1 (dx, dy, dz) ((x1, y1, z1), (dx1, dy1, dz1)) ((x2, y2, z2), (dx2, dy2, dz2)) =
+        let a = -x1 - y1 - z1 + x2 + y2 + z2 + t1 * (-dx1 - dy1 - dz1 + dx + dy + dz)
+        let b = dx2 + dy2 + dz2 - dx - dy - dz
+        if b <> Rational 0 then Some (-a / b) else None
+
+let findSpeedWithTime xs =
+    let rec go s1 t1 h1 = function
+        | [] -> seq [s1]
+        | h2 :: rest ->
+            match s1 with
+            | None -> 
+                speedVariants |> Seq.collect (fun d -> findTimeForPair t1 d h1 h2) |> Seq.collect (fun (t2, s) -> 
+                    //printfn $"({h1}, {h2}) ({t1}, {t2}) {s}"
+                    go (Some s) t2 h2 rest)
+            | Some d ->
+                findTimeForPair t1 d h1 h2 |> Seq.collect (fun (t2, s) -> go (Some s) t2 h2 rest)
+    seq {
+        for t1 in 1L .. maxT do
+            yield! go None t1 (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList) |> Seq.map (Option.map (fun d -> t1, d))
+    }
+
+let findTimesR xs =
+    let rec go acc s t1 h1 = function
+        | [] -> 
+            let xs = acc |> List.map (fun (r: Rational) -> r.CanonicalForm) |> List.rev 
+            if xs |> List.forall (fun r -> (* r.FractionPart = Rational 0 && *) r.Sign > 0) then Some xs else None
+        | h2 :: rest ->
+            findTimeForPairR t1 s h1 h2 |> Option.bind (fun t2 -> go (t2 :: Seq.toList acc) s t2 h2 rest)
+    seq {
+        for (dx, dy, dz) in [-3, 1, 2] do
+            printfn $"({dx}, {dy}, {dz})"
+            let t1 = 10L
+            let s = Rational dx, Rational dy, Rational dz
+            yield 
+                go [Rational t1] s (Rational t1) (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList)
+                |> Option.map (fun rs -> 
+                    rs |> Seq.iter (fun r -> printfn $"{r.CanonicalForm}")
+                    Rational t1, s)
+    }
 
 let absMinBy f xs =
     xs
@@ -99,15 +170,20 @@ let absMinBy f xs =
     |> snd
 
 let findSpeeds() =
-    let hails = hails int64
-    let h1 = hails |> Seq.head
-    let h2 = hails |> Seq.nth 1
-    findSpeed hails |> Seq.head
-    |> fun it -> printfn $" {h1} {h2} -> {it}"
-
+    let hails = hails Rational
+    let ((x1, y1, z1), (dx1, dy1, dz1)) as h1 = hails |> Seq.head
+    let initialPairs = allPairs hails
+    // hails |> Seq.collect (fun h1 -> 
+    //     let hs = h1 :: (hails |> List.filter (fun h -> h <> h1))
+    //     //printfn $"findSpeedWithTime: ({h1})"
+    //     findTimesR hs) |> Seq.toList
+    findTimesR hails |> Seq.choose id |> Seq.head //|> (fun (t1, rs) -> printfn "{t1}"; rs |> Seq.iter (fun r -> printfn $"{r.CanonicalForm}"); t1, rs)
+    |> fun (t1, (dx, dy, dz)) -> x1 + t1 * dx1 - t1 * dx, y1 + t1 * dy1 - t1 * dy, z1 + t1 * dz1 - t1 * dz
 let part2 =
-    findSpeeds()
-    0
+    //findSpeeds()
+    let x,y,z = findSpeeds()
+    x + y + z
+    //0
 
 printfn $"{part1}" //26657
 printfn $"{part2}"
