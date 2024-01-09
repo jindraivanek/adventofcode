@@ -1,37 +1,37 @@
 #r "nuget: Rationals"
-#r "nuget: MathNet.Numerics.FSharp"
-#r "nuget: Flips"
 open Rationals
-open MathNet.Numerics.LinearAlgebra
-open Flips
-open Flips.Types
-open Flips.SliceMap
 #time
 
-//let lines = System.IO.File.ReadAllLines("input")
-let lines = System.IO.File.ReadAllLines("sample")
+let lines = System.IO.File.ReadAllLines("input")
+//let lines = System.IO.File.ReadAllLines("sample")
+
+let pos3plus (x1, y1, z1) (x2, y2, z2) = x1 + x2, y1 + y2, z1 + z2
+let pos3minus (x1, y1, z1) (x2, y2, z2) = x1 - x2, y1 - y2, z1 - z2
+let pos3dot (x1, y1, z1) (x2, y2, z2) = x1 * x2 + y1 * y2 + z1 * z2
+let pos3product (x1, y1, z1) (x2, y2, z2) = y1 * z2 - z1 * y2, z1 * x2 - x1 * z2, x1 * y2 - y1 * x2
+let pos3mul (x1, y1, z1) a = x1 * a, y1 * a, z1 * a
+let pos3div (x1, y1, z1) (dx, dy, dz) = 
+    let safeDiv x y = if y = Rational 0 then x else x / y
+    safeDiv x1 dx, safeDiv y1 dy, safeDiv z1 dz
+let pos3Canonical (x: Rational, y: Rational, z:Rational) = x.CanonicalForm, y.CanonicalForm, z.CanonicalForm
 
 let allPairs xs =
     xs
-    |> Seq.mapi (fun i x1 -> xs |> Seq.skip i |> Seq.map (fun x2 -> x1, x2))
+    |> Seq.mapi (fun i x1 -> xs |> Seq.skip (i+1) |> Seq.map (fun x2 -> x1, x2))
     |> Seq.concat
-
-let (=~) x y = abs (x - y) < 0.00001
-let (<~) x y = y - x > 0.00001
-let (<=~) x y = x =~ y || x <~ y
 
 let num (x: int64) = Rational x
 
-let inline hails conv =
+let hails =
     lines
     |> Seq.map (fun l ->
         l.Split('@')
-        |> Seq.map (fun s -> s.Split(", ") |> Seq.map (fun x -> int64 x |> conv) |> Seq.toList)
+        |> Seq.map (fun s -> s.Split(", ") |> Seq.map (fun x -> int64 x |> Rational) |> Seq.toList)
         |> Seq.toList)
-    |> Seq.map (fun [ [ x1; y1; z1 ]; [ x2; y2; z2 ] ] -> (x1, y1, z1), (x1 + x2, y1 + y2, z1 + z2))
+    |> Seq.map (fun [ [ x1; y1; z1 ]; [ x2; y2; z2 ] ] -> (x1, y1, z1), (x2, y2, z2))
     |> Seq.toList
 
-let to2dLine ((x1, y1, _), (x2, y2, _)) = ((x1, y1), (x2, y2))
+let to2dLine ((x1, y1, _), (x2, y2, _)) = ((x1, y1), (x1+x2, y1+y2))
 
 let isIntersectionInFuture ((x1, y1), (x2, y2)) (x, y) =
     let dx = x2 - x1
@@ -49,7 +49,7 @@ let linesIntersection ((x1, y1), (x2, y2)) ((x3, y3), (x4, y4)) =
         let x = (a * (x3 - x4) - (x1 - x2) * b) / d
         let y = (a * (y3 - y4) - (y1 - y2) * b) / d
         if isIntersectionInFuture ((x1, y1), (x2, y2)) (x, y) && isIntersectionInFuture ((x3, y3), (x4, y4)) (x, y) then
-            //printfn $"({x1}, {y1}) ({x2}, {y2}) ({x3}, {y3}) ({x4}, {y4}) -> ({x}, {y}) [{d}, {a}, {b}]"
+            //printfn $"({x1}, {y1}) ({x2}, {y2}) ({x3}, {y3}) ({x4}, {y4}) -> ({float x}, {float y}) [{d}, {a}, {b}]"
             Some(x, y)
         else None
 
@@ -57,7 +57,7 @@ let isBetween (x1, y1) (x2, y2) (x, y) =
     x1 <= x && x <= x2 && y1 <= y && y <= y2
 
 let intersectionInTestArea t1 t2 =
-    hails Rational
+    hails
     |> Seq.map to2dLine
     |> allPairs
     |> Seq.choose (fun (h1, h2) -> linesIntersection h1 h2)
@@ -65,135 +65,55 @@ let intersectionInTestArea t1 t2 =
     |> Seq.length
 
 let part1 = 
-    //intersectionInTestArea 7 27
+    //intersectionInTestArea (num 7) (num 27)
     intersectionInTestArea (num 200000000000000L) (num 400000000000000L)
 
-let linEqSystem() =
-    let cols = (hails float |> Seq.length) + 3
-    let mkRow indexCoefs rhs = 
-        let m = Map.ofList indexCoefs
-        [ for i in 1..cols -> Map.tryFind i m |> Option.defaultValue (0.0) ], rhs
-    let mkSystem rows =
-        rows |> List.unzip |> fun (xs, ys) -> matrix xs, vector ys
-    let model =
-        hails float
-        |> Seq.mapi (fun i ((x1,y1,z1),(x2,y2,z2)) -> [
-            mkRow [1, 1.; 4+i, -(x2-x1-1.)] x1
-            mkRow [2, 1.; 4+i, -(y2-y1-1.)] y1
-            mkRow [3, 1.; 4+i, -(z2-z1-1.)] z1 ]
-        ) |> Seq.collect id |> Seq.toList
-    let A, b = mkSystem model
-    printfn $"{A} = {b}"
-    A.Solve(b)
+let linePlaneIntersection p0 pv l1 l2  =
+    let u = pos3minus l2 l1
+    let dot = pos3dot pv u
 
-//printfn $"{linEqSystem}"
+    if abs(dot) > Rational 0 then
+        let w = pos3minus l1 p0
+        let fac = -pos3dot pv w / dot
+        let u = pos3mul u fac
+        let p = pos3plus l1 u |> pos3Canonical
+        //printfn $"linePlaneIntersection {p0} {pv} {l1} {l2} -> {p} ({dot} {fac} {u})"
+        Some p
+    else None
 
-let n = (hails float |> Seq.length)
-let linModel dx dy dz =
-    let m = n * n
-    let BIG = 1e8    
-    let dims = ['X'; 'Y'; 'Z']
+let planeNormal point line1 line2 =
+    let u = pos3minus line1 line2
+    let v = pos3minus point line2
+    let n = pos3product u v
+    //printfn $"planeNormal {point} {line1} {line2} -> {n}"
+    n
 
-    let xi = hails float |> Seq.mapi (fun i ((x,y,z),_) -> [('X', i), x; ('Y', i), y; ('Z', i), z]) |> Seq.collect id |> SMap2.ofSeq
-    let offset = SMap2.toSeq xi |> Seq.map snd |> Seq.min
-    printfn $"Offset: {offset}"
-    let xi = xi |> SMap2.toSeq |> Seq.map (fun (k, x) -> k, x - offset) |> SMap2.ofSeq
-    printfn $"max xi: {SMap2.toSeq xi |> Seq.map snd |> Seq.max}"
-    let dxi = hails float |> Seq.mapi (fun i ((x1,y1,z1),(x2,y2,z2)) -> [('X', i), x2-x1; ('Y', i), y2-y1; ('Z', i), z2-z1]) |> Seq.collect id |> SMap2.ofSeq
-
-    let x = DecisionBuilder "x" { for _ in dims -> Integer (-infinity, infinity) } |> SMap.ofSeq
-    let ts = DecisionBuilder "ts" { for _ in [0..n-1] -> Integer (0.0, infinity) } |> SMap.ofSeq
-    let dxbp = DecisionBuilder "dxbp" { for _ in dims do for _ in [1..m] -> Boolean } |> SMap2.ofSeq
-    let dxbn = DecisionBuilder "dxbn" { for _ in dims do for _ in [1..m] -> Boolean } |> SMap2.ofSeq
-
-    let dxtsp = DecisionBuilder "dxtsp" { for _ in dims do for _ in [1..m] do for _ in [0..n-1] -> Integer (0.0, infinity) } |> SMap3.ofSeq
-    let dxtsn = DecisionBuilder "dxtsn" { for _ in dims do for _ in [1..m] do for _ in [0..n-1] -> Integer (0.0, infinity) } |> SMap3.ofSeq
-
-    let ep = DecisionBuilder "ep" { for _ in dims do for _ in [0..n-1] -> Continuous(0.0, infinity) } |> SMap2.ofSeq
-    let en = DecisionBuilder "en" { for _ in dims do for _ in [0..n-1] -> Continuous(0.0, infinity) } |> SMap2.ofSeq
-
-    let consDx = ConstraintBuilder "dx" { for d in dims -> sum dxbp.[d, All] + sum dxbn.[d, All] == 1.0 } 
-    let consDxtsp1 = ConstraintBuilder "dxtsp1" { for d in dims do for i in [1..m] do for j in [0..n-1] -> dxtsp[d,i,j] <== BIG * dxbp.[d,i] }
-    let consDxtsn1 = ConstraintBuilder "dxtsn1" { for d in dims do for i in [1..m] do for j in [0..n-1] -> dxtsn[d,i,j] <== BIG * dxbn.[d,i] }
-    let consDxtsp2 = ConstraintBuilder "dxtsp2" { for d in dims do for i in [1..m] do for j in [0..n-1] -> dxtsp[d,i,j] - (1.0 - dxbp.[d,i]) * BIG <== float i * ts.[j] }
-    let consDxtsn2 = ConstraintBuilder "dxtsn2" { for d in dims do for i in [1..m] do for j in [0..n-1] -> dxtsn[d,i,j] - (1.0 - dxbn.[d,i]) * BIG <== float i * ts.[j] }
-    let consDxtsp3 = ConstraintBuilder "dxtsp3" { for d in dims do for i in [1..m] do for j in [0..n-1] -> dxtsp[d,i,j] + (1.0 - dxbp.[d,i]) * BIG >== float i * ts.[j] }
-    let consDxtsn3 = ConstraintBuilder "dxtsn3" { for d in dims do for i in [1..m] do for j in [0..n-1] -> dxtsn[d,i,j] + (1.0 - dxbn.[d,i]) * BIG >== float i * ts.[j] }
-
-    let consX = ConstraintBuilder "x" { for d in dims do for i in [0..n-1] -> xi.[d,i] + ts[i] * dxi[d,i] == x[d] + sum dxtsp[d,All, i] - sum dxtsn[d,All, i] }
-
-    let objective = Objective.create "obj" Minimize (sum ep.[All, All] + sum en.[All, All])
-    let model = 
-        Model.create objective
-        |> Model.addConstraints consDx
-        |> Model.addConstraints consDxtsp1
-        |> Model.addConstraints consDxtsn1
-        |> Model.addConstraints consDxtsp2
-        |> Model.addConstraints consDxtsn2
-        |> Model.addConstraints consDxtsp3
-        |> Model.addConstraints consDxtsn3
-        |> Model.addConstraints consX
-    //let settings = { Settings.basic with SolverType = SolverType.CBC; WriteLPFile = Some "day24.lp"}
-    let settings = Settings.basic
-    printfn "Solving..."
-    match Solver.solve settings model with
-    | Optimal sol ->
-        sol.DecisionResults |> Map.filter (fun _ x -> x <> 0.0) |> Map.toSeq |> Seq.map (fun (k, x) -> k.Name, x) |> Seq.sort |> Seq.iter (printfn "%A")
-        sol.ObjectiveResult |> int64 |> Some
-    | e -> 
-        printfn $"Error: {e}"
-        None
-
-let lmLoop() = 
-    seq {
-    for dx in [1..n] do
-        for dy in [1..n] do
-            for dz in [1..n] do
-                yield linModel dx dy dz
-                yield linModel -dx dy dz
-                yield linModel dx -dy dz
-                yield linModel dx dy -dz
-                yield linModel -dx -dy dz
-                yield linModel dx -dy -dz
-                yield linModel -dx dy -dz
-                yield linModel -dx -dy -dz
-    } |> Seq.choose id |> Seq.head
-
-let lm() = linModel 1 1 1
-//printfn $"LM: {lm()}"
-
-let rec gcd2 a b = 
-    if b = 0L then a else gcd2 b (a % b)
-
-let gcd xs = xs |> Seq.fold gcd2 0L
-
-let lcm xs = xs |> Seq.fold (fun acc x -> (acc * x) / gcd2 acc x) 1L
-
-let dxs = hails int64 |> Seq.map (fun ((x1,y1,z1),(x2,y2,z2)) -> x2-x1) |> Seq.toList
-
-printfn "%A" (gcd dxs)
-
-let equations =
-    hails int64
-    |> Seq.mapi (fun i ((x1,y1,z1),(x2,y2,z2)) -> [
-        let i = i + 1
-        let dx = x2-x1
-        let dy = y2-y1
-        let dz = z2-z1
-        //sprintf "x(1) + t(%d) * d(1) = %d + %d * t(%d);" i x1 dx i
-        sprintf "y(%d) = ((%d - x(1)) / ((x(4) - %d)) + (%d - x(2)) / ((x(5) - %d)) + (%d - x(3)) / ((x(6) - %d))) - 3 * x(%d);" i x1 dx y1 dy z1 dz (i+6)
-         ]
-    ) |> Seq.collect id 
-    |> Seq.toList
-
-equations |> Seq.iter (printfn "%s")
+let solve hails =
+    let (h1p, h1d) as h1 = hails |> Seq.head
+    let tHails = hails |> Seq.skip 1 |> Seq.map (fun (p2, d2) -> pos3minus p2 h1p, pos3minus d2 h1d)
+    let (h2p, h2d) = tHails |> Seq.head
+    let (h3p, h3d) = tHails |> Seq.skip 1 |> Seq.head
+    let (h4p, h4d) = tHails |> Seq.skip 2 |> Seq.head
+    let zero = Rational 0, Rational 0, Rational 0
+    //tHails |> Seq.iter (fun (d, s) -> printfn $"({d}) ({s})")
+    let n = planeNormal zero h2p (pos3plus h2p h2d)
+    let (Some i1) = linePlaneIntersection zero n h3p (h3p |> pos3plus h3d) |> Option.map pos3Canonical
+    let (Some i2) = linePlaneIntersection zero n h4p (h4p |> pos3plus h4d) |> Option.map pos3Canonical
+    //printfn $"{n} ({i1}) ({i2})"
+    let d3 = pos3div (pos3minus i1 h3p) h3d |> pos3Canonical
+    let d4 = pos3div (pos3minus i2 h4p) h4d |> pos3Canonical
+    let getTime d = d |> fun (x, y, z) -> [x; y; z] |> List.find (fun r -> r <> Rational 0)
+    let t3 = getTime d3
+    let t4 = getTime d4
+    let d = pos3mul (pos3minus i1 i2) (Rational 1 / (t3-t4)) |> pos3Canonical
+    //printfn $"({t3} {t4}) {d}"
+    let r = pos3mul d -t3 |> pos3plus i1 |> pos3plus h1p |> pos3Canonical
+    //printfn $"({r})"
+    r
 
 let part2 =
-    // let n = num hails.Length
-    // let sumXYZ = hails |> Seq.map (fun ((x, y, z), _) -> x + y + z) |> Seq.reduce (+)
-    // (sumXYZ / n)
-    //int64 linEqSystem.[0] + int64 linEqSystem.[1] + int64 linEqSystem.[2]
-    0
+    let x,y,z = solve hails
+    x + y + z
 
 printfn $"{part1}" //26657
-printfn $"{part2}"
+printfn $"{part2}" //828418331313365
