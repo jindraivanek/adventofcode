@@ -185,13 +185,20 @@ let linePlaneIntersection p0 pv l1 l2  =
         let w = pos3minus l1 p0
         let fac = -pos3dot pv w / dot
         let u = pos3mul u fac
-        Some (pos3plus p0 u)
+        let p = pos3plus p0 u
+        printfn $"linePlaneIntersection {p0} {pv} {l1} {l2} -> {p}"
+        Some p
     else None
+
+let normalizeVector (x, y, z) =
+    let l = sqrt (float (x * x + y * y + z * z)) |> Rational.Approximate
+    x / l, y / l, z / l
 
 let planeNormal point line1 line2 =
     let u = pos3minus line2 line1
     let v = pos3minus point line1
     let n = pos3product u v
+    printfn $"planeNormal {point} {line1} {line2} -> {n}"
     n
 
 let findT1 hails =
@@ -205,9 +212,10 @@ let findT1 hails =
     let p2 = pos3plus p1 (dx2, dy2, dz2)
     tHails |> Seq.iter (fun (d, s) -> printfn $"({d}) ({s})")
     let n = planeNormal zero (fst h2) (pos3plus (fst h2) (snd h2))
+    printfn $"h3 ({h3}) h4 ({h4})"
     let (Some i1) = linePlaneIntersection zero n (fst h3) (fst h3 |> pos3plus (snd h3)) |> Option.map pos3Canonical
     let (Some i2) = linePlaneIntersection zero n (fst h4) (fst h4 |> pos3plus (snd h4)) |> Option.map pos3Canonical
-    printfn $"({i1}) ({i2})"
+    printfn $"{n} ({i1}) ({i2})"
     let d = pos3minus i1 i2 |> pos3Canonical
     printfn $"({d})"
     let r = pos3plus (snd h1) d |> pos3Canonical
