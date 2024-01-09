@@ -5,6 +5,13 @@ open Rationals
 //let lines = System.IO.File.ReadAllLines("input")
 let lines = System.IO.File.ReadAllLines("sample")
 
+let pos3plus (x1, y1, z1) (x2, y2, z2) = x1 + x2, y1 + y2, z1 + z2
+let pos3minus (x1, y1, z1) (x2, y2, z2) = x1 - x2, y1 - y2, z1 - z2
+let pos3dot (x1, y1, z1) (x2, y2, z2) = x1 * x2 + y1 * y2 + z1 * z2
+let pos3product (x1, y1, z1) (x2, y2, z2) = y1 * z2 - z1 * y2, z1 * x2 - x1 * z2, x1 * y2 - y1 * x2
+let pos3mul (x1, y1, z1) a = x1 * a, y1 * a, z1 * a
+let pos3Canonical (x: Rational, y: Rational, z:Rational) = x.CanonicalForm, y.CanonicalForm, z.CanonicalForm
+
 let allPairs xs =
     xs
     |> Seq.mapi (fun i x1 -> xs |> Seq.skip (i+1) |> Seq.map (fun x2 -> x1, x2))
@@ -61,6 +68,7 @@ let intersectionInTestArea t1 t2 =
 let part1 = 
     //intersectionInTestArea 7 27
     intersectionInTestArea (num 200000000000000L) (num 400000000000000L)
+
 
 let maxT = 10L
 let maxD = 3L
@@ -152,14 +160,14 @@ let findTimesR xs =
         | h2 :: rest ->
             findTimeForPairR t1 s h1 h2 |> Option.bind (fun t2 -> go (t2 :: Seq.toList acc) s t2 h2 rest)
     seq {
-        for (dx, dy, dz) in [-3, 1, 2] do
+        for (dx, dy, dz) in speedVariants do
             printfn $"({dx}, {dy}, {dz})"
             let t1 = 10L
             let s = Rational dx, Rational dy, Rational dz
             yield 
                 go [Rational t1] s (Rational t1) (xs |> Seq.head) (xs |> Seq.skip 1 |> Seq.toList)
                 |> Option.map (fun rs -> 
-                    rs |> Seq.iter (fun r -> printfn $"{r.CanonicalForm}")
+                    rs |> Seq.iter (fun r -> printfn $"{r.CanonicalForm} {float r}")
                     Rational t1, s)
     }
 
@@ -169,21 +177,58 @@ let absMinBy f xs =
     |> Seq.minBy fst
     |> snd
 
+let linePlaneIntersection p0 pv l1 l2  =
+    let u = pos3minus l2 l1
+    let dot = pos3dot pv u
+
+    if abs(dot) > Rational 0 then
+        let w = pos3minus l1 p0
+        let fac = -pos3dot pv w / dot
+        let u = pos3mul u fac
+        Some (pos3plus p0 u)
+    else None
+
+let planeNormal point line1 line2 =
+    let u = pos3minus line2 line1
+    let v = pos3minus point line1
+    let n = pos3product u v
+    n
+
+let findT1 hails =
+    let ((x1, y1, z1), (dx1, dy1, dz1)) as h1 = hails |> Seq.head
+    let tHails = hails |> Seq.skip 1 |> Seq.map (fun ((x2, y2, z2), (dx2, dy2, dz2)) -> (x2 - x1, y2 - y1, z2 - z1), (dx2 - dx1, dy2 - dy1, dz2 - dz1))
+    let ((x2, y2, z2), (dx2, dy2, dz2)) as h2 = tHails |> Seq.head
+    let ((x3, y3, z3), (dx3, dy3, dz3)) as h3 = tHails |> Seq.skip 1 |> Seq.head
+    let ((x4, y4, z4), (dx4, dy4, dz4)) as h4 = tHails |> Seq.skip 2 |> Seq.head
+    let zero = Rational 0, Rational 0, Rational 0
+    let p1 = (x2, y2, z2)
+    let p2 = pos3plus p1 (dx2, dy2, dz2)
+    tHails |> Seq.iter (fun (d, s) -> printfn $"({d}) ({s})")
+    let n = planeNormal zero (fst h2) (pos3plus (fst h2) (snd h2))
+    let (Some i1) = linePlaneIntersection zero n (fst h3) (fst h3 |> pos3plus (snd h3)) |> Option.map pos3Canonical
+    let (Some i2) = linePlaneIntersection zero n (fst h4) (fst h4 |> pos3plus (snd h4)) |> Option.map pos3Canonical
+    printfn $"({i1}) ({i2})"
+    let d = pos3minus i1 i2 |> pos3Canonical
+    printfn $"({d})"
+    let r = pos3plus (snd h1) d |> pos3Canonical
+    printfn $"({r})"
+    r
+
 let findSpeeds() =
     let hails = hails Rational
     let ((x1, y1, z1), (dx1, dy1, dz1)) as h1 = hails |> Seq.head
-    let initialPairs = allPairs hails
+    findT1 hails
     // hails |> Seq.collect (fun h1 -> 
     //     let hs = h1 :: (hails |> List.filter (fun h -> h <> h1))
     //     //printfn $"findSpeedWithTime: ({h1})"
     //     findTimesR hs) |> Seq.toList
-    findTimesR hails |> Seq.choose id |> Seq.head //|> (fun (t1, rs) -> printfn "{t1}"; rs |> Seq.iter (fun r -> printfn $"{r.CanonicalForm}"); t1, rs)
-    |> fun (t1, (dx, dy, dz)) -> x1 + t1 * dx1 - t1 * dx, y1 + t1 * dy1 - t1 * dy, z1 + t1 * dz1 - t1 * dz
+    //findTimesR hails |> Seq.choose id |> Seq.last //|> (fun (t1, rs) -> printfn "{t1}"; rs |> Seq.iter (fun r -> printfn $"{r.CanonicalForm}"); t1, rs)
+    //|> fun (t1, (dx, dy, dz)) -> x1 + t1 * dx1 - t1 * dx, y1 + t1 * dy1 - t1 * dy, z1 + t1 * dz1 - t1 * dz
 let part2 =
-    //findSpeeds()
-    let x,y,z = findSpeeds()
-    x + y + z
-    //0
+    findSpeeds()
+    //let x,y,z = findSpeeds()
+    //x + y + z
+    0
 
 printfn $"{part1}" //26657
 printfn $"{part2}"
