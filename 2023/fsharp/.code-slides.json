@@ -373,6 +373,141 @@
         ],
         "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\13\\solve.fsx",
         "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1urd194mgayo00",
+        "title": "--- Day 12: Hot Springs ---",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            1,
+            16
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "2zgsgj356co000",
+        "title": "combNum",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            59,
+            87
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1hj1wpmx4hfk00",
+        "title": "part1 sol",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            156,
+            160
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1hvw9k5eabuo00",
+        "title": "part2",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            17,
+            24
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1nlz3r78yqow00",
+        "title": "memoize",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            35,
+            45
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "1iji3i9kxb0g00",
+        "title": "combNumMem",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            88,
+            114
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "cagnc4bvrk000",
+        "title": "memoizeRec",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            46,
+            58
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "5kjx7yg9z5o00",
+        "title": "combNumMemRec",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            115,
+            141
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
+      },
+      {
+        "id": "49yod3vgrqm000",
+        "title": "part2 sol",
+        "isProject": false,
+        "children": [],
+        "desc": "",
+        "highlightLines": [
+          [
+            161,
+            168
+          ]
+        ],
+        "slideFilePath": "c:\\dev\\jindra\\adventofcode\\2023\\fsharp\\12\\solve_simpler.fsx",
+        "parentId": "4yup6oh3t80000"
       }
     ],
     "desc": "",
