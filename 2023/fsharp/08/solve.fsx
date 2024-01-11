@@ -107,6 +107,6 @@ let gcd a b =
     gcd' (abs a) (abs b)
 
 let part2 = 
-    // minimun common multiple
+    // minimum common multiple
     endIndexes |> List.fold (fun acc i -> (acc * i) / gcd acc i) firstStep
 printfn $"{part2}"
