@@ -18,23 +18,6 @@ let memoize f =
             cache.Add(x, v)
             v
             
-let memoizeRec f =
-    let cache = System.Collections.Generic.Dictionary<_, _>()
-
-    let rec loop x =
-        match cache.TryGetValue x with
-        | true, v -> 
-            v
-        | _ ->
-            let v = f loop x
-            cache.Add(x, v)
-            v
-            
-    loop
-
-let memoize2 f =
-    memoize (fun (x, y) -> f x y) |> fun g -> fun x y -> g (x, y)
-
 let printGrid g start s =
     let minX = s |> Seq.map fst |> Seq.min
     let maxX = s |> Seq.map fst |> Seq.max
@@ -71,26 +54,14 @@ let fromSetVariant, toSetVariant =
     let fromSV x = Map.find x revCache
     fromSV, toSV
 
-let memSetVariantFromSeqFunc f =
-    memoize
-    <| fun (svs: Set<SetVariant>) ->
-        let s = Seq.map fromSetVariant svs
-        f s |> toSetVariant
-
 let memSetVariantSeqFunc f =
     memoize
     <| fun sv ->
         let s = fromSetVariant sv
         f s |> Seq.map toSetVariant |> set
 
-let inline mod_ a b = (a % b + b) % b
-
 let inline posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
-let posMinus (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
 let inline posMult (x1, y1) (x2, y2) = (x1 * x2, y1 * y2)
-let inline posDiv (x1, y1) (x2, y2) = (x1 / x2, y1 / y2)
-let posModulo (x1, y1) (x2, y2) = (mod_ x1 x2), (mod_ y1 y2)
-let dirNeg (x, y) = (-x, -y)
 let dirs = [ (0L, -1L); (-1L, 0L); (0L, 1L); (1L, 0L) ]
 
 let printGrids dim g start ss =
@@ -101,7 +72,6 @@ let indexed =
     |> Array.mapi (fun y line ->
         line
         |> Seq.mapi (fun x c -> (int64 x, int64 y), c)
-        //|> Seq.filter (fun (_, c) -> c <> '#')
         )
     |> Seq.concat
     |> Seq.toList
@@ -109,7 +79,7 @@ let indexed =
 let dimX = int64 lines[0].Length
 let dimY = int64 lines.Length
 let inputDim = dimX, dimY
-printfn $"{inputDim}"
+//printfn $"{inputDim}"
 let start = indexed |> Seq.find (fun (_, c) -> c = 'S') |> fst
 let spaces = indexed |> Seq.filter (fun (_, c) -> c <> '#') |> Seq.map fst |> set
 let isOutside (x, y) =
@@ -170,7 +140,7 @@ let countN spaces n =
     m |> Map.values |> Seq.sumBy (fromSetVariant >> snd >> Set.count)
 
 let part1 () = countN spaces 64
-//printfn $"{part1()}"
+printfn $"{part1()}"
 
 open Rationals
 
@@ -186,20 +156,18 @@ let lagrangePolynomInterpolation (xs: seq<int>) (ys: seq<int>) x =
                 if i <> j then
                     term <- term * (x - xs.[j]) / (xs.[i] - xs.[j])
             term)
-    //p |> List.iter (printfn "%A")
     [0 .. n-1] |> List.map (fun i -> ys.[i] * p.[i]) |> List.reduce (+) |> fun x -> x.CanonicalForm
 
 let stepsData n =
     let d = 
         startSeq spaces |> Seq.map (fun m -> m |> Map.values |> Seq.sumBy (fromSetVariant >> snd >> Set.count)) |> Seq.indexed 
-        //|> Seq.filter (fun (i, x) -> i % 2 = 1)
         |> Seq.take n |> Seq.toArray
-    d |> Seq.iter (printfn "%A")
+    //d |> Seq.iter (printfn "%A")
     d
 let part2 () = 
-    let n = 328
+    let size = fst inputDim |> int
+    let n = 2*size + size/2
     let xs, ys = stepsData n |> Array.filter (fun (x,_) -> (x - 65) % 131 = 0) |> Array.unzip
-    xs |> Seq.iter (fun i -> lagrangePolynomInterpolation xs ys i |> printfn "%i %A" i)
     lagrangePolynomInterpolation xs ys 26501365
 
 printfn $"{part2 ()}"
