@@ -1,3 +1,4 @@
+#r "nuget: Rationals"
 #time
 
 let lines = System.IO.File.ReadAllLines("input")
@@ -111,10 +112,6 @@ let inputDim = dimX, dimY
 printfn $"{inputDim}"
 let start = indexed |> Seq.find (fun (_, c) -> c = 'S') |> fst
 let spaces = indexed |> Seq.filter (fun (_, c) -> c <> '#') |> Seq.map fst |> set
-let walls = indexed |> Seq.filter (fun (_, c) -> c = '#') |> Seq.map fst |> set
-let wallsFromStart = walls |> Seq.map (fun x -> posMinus x start) |> set
-let wallsByDist = wallsFromStart |> Seq.countBy (fun (x, y) -> abs x + abs y) |> Seq.map (fun (k,v) -> k, int64 v) |> Map.ofSeq
-
 let isOutside (x, y) =
     x < 0L || y < 0L || x >= dimX || y >= dimY
 
@@ -172,168 +169,38 @@ let countN spaces n =
     //printGrids inputDim spaces start (Map.map (fun _ s -> fromSetVariant s |> snd) m)
     m |> Map.values |> Seq.sumBy (fromSetVariant >> snd >> Set.count)
 
-let countNByAreas spaces n =
-    let m = allStepsN spaces startPlots n 
-    //printGrids inputDim spaces start (Map.map (fun _ s -> fromSetVariant s |> snd) m)
-    m |> Map.toList |> List.map (fun (k, v) -> k, v |> fromSetVariant |> snd |> Set.count)
-
-[1..262] |> List.map (fun x -> x, countNByAreas spaces x) |> List.iter (printfn "countNByAreas %A")
-//[1..131] |> List.map (fun x -> x, countN spaces x) |> List.iter (printfn "countN %A")
-
 let part1 () = countN spaces 64
 //printfn $"{part1()}"
 
-//let seqIntoMax s = startSeq s |> Seq.indexed |> Seq.pairwise |> Seq.takeWhile (fun ((_,s1), (_,s2)) -> Set.isEmpty s2 || Set.count s1 < Set.count s2) |> Seq.toList |> fun xs -> (0, Seq.head (startSeq s)) :: (List.map snd xs)
-// let seqIntoMax s =
-//     let s = startSeq s |> Seq.cache
+open Rationals
 
-//     let xs =
-//         s
-//         |> Seq.scan
-//             (fun (i, x, _) s ->
-//                 printfn "%A" (i, x)
-//                 let m = Set.count s in
-//                 if m > x then (0, m, s) else (i + 1, x, s))
-//             (0, 0, Set.empty)
-//         |> Seq.takeWhile (fun (i, m, _) -> m = 0 || i <= 10)
-//         |> Seq.skip 1
-//         |> Seq.map (fun (_, _, s) -> s)
+let lagrangePolynomInterpolation (xs: seq<int>) (ys: seq<int>) x =
+    let xs = Array.ofSeq xs |> Array.map Rational
+    let ys = Array.ofSeq ys |> Array.map Rational
+    let x = Rational x
+    let n = xs.Length
+    let p =
+        [0 .. n-1] |> List.map (fun i ->
+            let mutable term = Rational 1
+            for j in 0..n-1 do
+                if i <> j then
+                    term <- term * (x - xs.[j]) / (xs.[i] - xs.[j])
+            term)
+    //p |> List.iter (printfn "%A")
+    [0 .. n-1] |> List.map (fun i -> ys.[i] * p.[i]) |> List.reduce (+) |> fun x -> x.CanonicalForm
 
-//     xs |> Seq.indexed |> Seq.toList
-
-// let setCountsFiltered f s =
-//     s
-//     |> List.filter (fun (i, x) -> (*printfn "i%i %i" i x;*) f i)
-//     |> List.map (snd >> Set.count)
-
-// let distMap s =
-//     s
-//     |> Seq.pairwise
-//     |> Seq.collect (fun ((_, x1), (i, x2)) -> x2 - x1 |> Seq.map (fun x -> x, i))
-//     |> Map.ofSeq
-
-// let maxInfo label area start s =
-//     let s =
-//         s
-//         |> Seq.map (fun (i, x) -> i, Set.filter (fun p -> Set.contains p area) x)
-//         |> Seq.toList
-
-//     let d = distMap s
-//     let maxEven = setCountsFiltered (fun i -> i % 2 = 0) s
-//     let maxOdd = setCountsFiltered (fun i -> i % 2 = 1) s
-//     let maxEvenLen = (Seq.length maxEven + 1) * 2
-//     let maxOddLen = (Seq.length maxOdd + 1) * 2 + 1
-//     let maxEvenSize = maxEven |> Seq.last
-//     let maxOddSize = maxOdd |> Seq.last
-//     printfn $"{label}"
-//     //printfn $"{List.rev s}"
-//     //printfn $"{d}"
-//     let startDist = d |> Map.find start
-//     printfn $"{maxEvenLen} {maxOddLen}"
-//     printfn $"{maxEvenSize} {maxOddSize}"
-//     printfn $"{startDist}"
-
-//     {| FillDist = (fun x -> if x % 2 = 0 then maxEvenLen else maxOddLen)
-//        FillSize = (fun x -> if x % 2 = 0 then maxEvenSize else maxOddSize)
-//        CenterDist = startDist |}
-
-// let floodFill maxCost dirsAndCost =
-//     let rec loop seen todo =
-//         match todo with
-//         | [] -> seen
-//         | (p, cost) :: acc ->
-//             let seen = Set.add p seen
-
-//             let todo =
-//                 dirsAndCost
-//                 |> Seq.map (fun (d, c) -> posPlus p d, cost + c)
-//                 |> Seq.filter (fun (p, c) -> c <= maxCost && not (Set.contains p seen))
-//                 |> Seq.toList
-
-//             loop seen (todo @ acc)
-
-//     loop Set.empty [ (0L, 0L), 0 ]
-
-// let firstAreaInfo = seqIntoMax spaces |> maxInfo "1x1" spaces start
-// //maxInfo "3x3" spaces3x3
-// let seq3x3 = seqIntoMax spaces3x3
-// printfn $"{seq3x3 |> Seq.length}"
-
-// let areasInfo =
-//     areas3x3
-//     |> Map.map (fun d s -> seq3x3 |> maxInfo (sprintf "area %A" d) s (posPlus start (posMult inputDim d)))
-
-// let dirsAndCost = areasInfo |> Map.map (fun _ i -> i.CenterDist) |> Map.toList
-
-// let filledBySteps x =
-//     floodFill x dirsAndCost |> Set.count |> (*) (firstAreaInfo.FillSize x)
-[1..50] |> List.map (countN spaces) |> List.iter (printfn "%A")
-
-let step2 spaces p =
-    dirs |> Seq.map (fun x -> posPlus p x) |> Seq.filter (fun p -> Set.contains (posModulo p inputDim) spaces)
-
-let allSteps2 s = 
-    s |> Seq.collect (step2 spaces) |> set
-
-let allStepsSeq2 s =
-    Seq.unfold (fun s -> Some(s, allSteps2 s)) s |> Seq.cache
-    
-let stepsSeq = allStepsSeq2 (set [start])
-
-let stepsN = memoize <| fun n -> Seq.nth n stepsSeq 
-
-let additionsSeq = memoize <| fun n ->
-    if n < 3 then stepsN n
-    else
-        let s = stepsN n - stepsN (n-2)
-        //printfn "%i" n
-        //printGrid spaces start s
-        s
-    //|> Seq.map (fun x -> posModulo x inputDim) |> Seq.distinct
-    |> Seq.length
-    
-//[1..100] |> List.map (fun x -> x, stepsN x) |> List.iter (printfn "stepsN %A")
-//[1..100] |> List.map (fun x -> x, additionsSeq x) |> List.iter (printfn "addition %A")
-    
-let additionSummed = memoizeRec <| fun f n -> 
-    let x = additionsSeq n
-    if n < 3 then x 
-    else x + f (n-2)
-
-//[1..300] |> List.map (fun x -> x, additionSummed x) |> List.iter (printfn "sum %A")
-
-//wallsByDist |> Map.iter (printfn "d%A -> %A")
-let isWallFromStart p =
-    let p2 = posPlus p start
-    let p3 = posModulo p2 inputDim
-    //printfn $"{p} {p2} {p3}"
-    Set.contains p3 walls
-
-let wallsForN n =
-    [n .. -1L .. 0L] |> Seq.collect (fun x -> [x, n-x; -x, -(n-x); -x, n-x; x, -(n-x)]) |> Seq.distinct |> Seq.filter isWallFromStart |> Seq.length |> int64
-
-//[1L..10L] |> List.map (fun x -> x, wallsForN x) |> List.iter (printfn "%A") 
-let countMD n =
-    (n+1L) * (n+1L) - ([n .. -2L .. 0L] |> Seq.sumBy (fun x -> (wallsForN x)))
-
-//[1..10] |> List.map (additionSummed) |> List.iter (printfn "%A")
-
+let stepsData n =
+    let d = 
+        startSeq spaces |> Seq.map (fun m -> m |> Map.values |> Seq.sumBy (fromSetVariant >> snd >> Set.count)) |> Seq.indexed 
+        //|> Seq.filter (fun (i, x) -> i % 2 = 1)
+        |> Seq.take n |> Seq.toArray
+    d |> Seq.iter (printfn "%A")
+    d
 let part2 () = 
-    let inDist n = (n+1L)*(n+1L) - (if n < 2L then 0L else (n-1L)*(n-1L))
-    let a = (26501365L - 65L) / 131L 
-    let oddFill = 7787L
-    let evenFill = 7791L
-    let fill x = if x % 2L = 0L then evenFill else oddFill
-    let n = (2L * a + 1L)
-    let areas = [0L .. a] |> Seq.sumBy (fun i -> 2L * i + 1L) 
-    let borders = [((-1, 0), 2011); ((0, -1), 2005); ((0, 1), 2005); ((1, 0), 1999)]
-    let bordersDiag = [((-1, -1), 3956); ((-1, 1), 3960); ((1, -1), 3948); ((1, 1), 3946)]
-    let inner = [0L .. a] |> Seq.sumBy (fun i -> inDist i * fill (i+1L)) 
-    let outer = int64 (borders |> Seq.sumBy snd) + int64 (bordersDiag |> Seq.sumBy snd) * a
-    inner + outer
-    //(a+1L) * (a+1L) * oddFill + a*a * evenFill
+    let n = 328
+    let xs, ys = stepsData n |> Array.filter (fun (x,_) -> (x - 65) % 131 = 0) |> Array.unzip
+    xs |> Seq.iter (fun i -> lagrangePolynomInterpolation xs ys i |> printfn "%i %A" i)
+    lagrangePolynomInterpolation xs ys 26501365
 
-//printfn $"{part2 ()}"
+printfn $"{part2 ()}"
 
-
-131. * 131.
