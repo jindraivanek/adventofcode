@@ -1,7 +1,7 @@
 #r "nuget: Rationals"
 #time
 
-let lines = System.IO.File.ReadAllLines("input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/21.txt")
 //let lines = System.IO.File.ReadAllLines("sample")
 //let lines = System.IO.File.ReadAllLines("sample2")
 

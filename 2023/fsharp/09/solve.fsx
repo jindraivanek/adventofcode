@@ -4,7 +4,7 @@ let teePrint x =
     printfn $"%A{x}"
     x
 
-let lines = System.IO.File.ReadAllLines("input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/09.txt")
 //let lines = System.IO.File.ReadAllLines("sample")
 
 let sequences = lines |> Array.map (fun l -> l.Split(' ') |> Array.map int64)

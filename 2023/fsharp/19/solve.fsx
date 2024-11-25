@@ -1,6 +1,6 @@
 #time
 
-let lines = System.IO.File.ReadAllLines("input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/19.txt")
 //let lines = System.IO.File.ReadAllLines("sample")
 
 open System.Text.RegularExpressions

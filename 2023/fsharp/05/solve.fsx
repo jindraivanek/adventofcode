@@ -30,7 +30,7 @@ module List =
 
         loop [] xs
 
-let lines = System.IO.File.ReadAllLines("input") |> Array.toList
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/05.txt") |> Array.toList
 
 let seeds =
     match List.head lines with

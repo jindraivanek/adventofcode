@@ -2,6 +2,8 @@
 
 let scripts =
     System.IO.DirectoryInfo(__SOURCE_DIRECTORY__).GetDirectories()
+    |> Seq.filter (fun d -> d.Name <> "template")
+    |> Seq.sortBy (_.Name)
     |> Seq.collect (fun d ->
         System.IO.DirectoryInfo(d.FullName).GetFiles("solve.fsx")
         |> Seq.map (fun x -> d, x.FullName))

@@ -9,7 +9,7 @@ let (|Match|_|) (pat: string) (inp: string) =
     else
         None
 
-let lines = System.IO.File.ReadAllLines("input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/02.txt")
 
 type Cube =
     | Red
