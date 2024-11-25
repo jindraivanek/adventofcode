@@ -1,4 +1,4 @@
-let lines = System.IO.File.ReadAllLines("day10.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/10.txt")
 
 let instructions =
     lines

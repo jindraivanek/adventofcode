@@ -1,4 +1,4 @@
-let lines = System.IO.File.ReadAllLines("day3.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/03.txt")
 
 let getCompartments s =
     let n = String.length s

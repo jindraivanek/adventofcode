@@ -1,4 +1,4 @@
-let lines = System.IO.File.ReadAllLines("day1.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/01.txt")
 let calories = 
     ((0, []), lines) 
     ||> Seq.fold (fun (cur, acc) s -> 

@@ -1,4 +1,4 @@
-let lines = System.IO.File.ReadAllLines("day20.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/20.txt")
 let arr () = lines |> Array.map int64
 
 let mixing repeat (inputF: unit -> array<int64>) =

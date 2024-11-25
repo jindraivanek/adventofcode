@@ -1,5 +1,5 @@
 #time
-let lines = System.IO.File.ReadAllLines("day16.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/16.txt")
 
 open System.Text.RegularExpressions
 

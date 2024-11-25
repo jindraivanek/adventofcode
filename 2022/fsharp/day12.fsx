@@ -1,5 +1,5 @@
 #time
-let lines = System.IO.File.ReadAllLines("day12.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/12.txt")
 let n = Array.length lines
 let m = String.length lines[0]
 let grid = Array2D.init n m (fun i j -> lines[i][j])

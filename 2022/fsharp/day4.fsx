@@ -1,4 +1,4 @@
-let lines = System.IO.File.ReadAllLines("day4.input")
+let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/04.txt")
 let pair (xs: array<_>) = xs[0], xs[1]
 
 let ranges =
