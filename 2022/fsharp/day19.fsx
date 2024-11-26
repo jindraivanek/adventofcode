@@ -6,7 +6,7 @@ open Flips
 open Flips.Types
 open Flips.SliceMap
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/19.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/19.txt")
 
 open System.Text.RegularExpressions
 

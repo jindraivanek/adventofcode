@@ -1,4 +1,4 @@
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/07.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/07.txt")
 
 open System.Text.RegularExpressions
 

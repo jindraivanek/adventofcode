@@ -1,5 +1,5 @@
 let stacks, moves =
-    let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/05.txt")
+    let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/05.txt")
     let sepIndex = lines |> Array.findIndex Seq.isEmpty
     let linesStacks = seq { 0 .. sepIndex - 2 } |> Seq.map (fun i -> lines[i])
 

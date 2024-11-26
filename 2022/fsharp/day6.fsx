@@ -1,4 +1,4 @@
-let text = System.IO.File.ReadAllText("__SOURCE_DIRECTORY__/../../../input/2022/06.txt") |> Seq.toArray
+let text = System.IO.File.ReadAllText($"%s{__SOURCE_DIRECTORY__}/../../input/2022/06.txt") |> Seq.toArray
 
 let getMarkerIndex markerSize =
     text

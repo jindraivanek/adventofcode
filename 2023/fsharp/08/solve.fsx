@@ -9,7 +9,7 @@ let (|Match|_|) (pat: string) (inp: string) =
     else
         None
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/08.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../../input/2023/08.txt")
 //let lines = System.IO.File.ReadAllLines("sample")
 
 let instructions = lines[0]

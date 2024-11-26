@@ -30,7 +30,7 @@ let evalShape = function
 
 let evalGame me op = evalWin me op + evalShape me
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/02.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/02.txt")
 let games = lines |> Array.map (fun s -> parseShape s[0], parseShape s[2])
 let part1 = games |> Seq.sumBy (fun (op, me) -> evalGame me op)
 

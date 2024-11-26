@@ -1,5 +1,5 @@
 #time
-let input = System.IO.File.ReadAllText("__SOURCE_DIRECTORY__/../../../input/2022/17.txt")
+let input = System.IO.File.ReadAllText($"%s{__SOURCE_DIRECTORY__}/../../input/2022/17.txt")
 
 let jets =
     input

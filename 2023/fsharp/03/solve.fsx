@@ -1,6 +1,6 @@
 #time
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/03.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../../input/2023/03.txt")
 let posXDiff (x1, y1) (x2, y2) = abs (x1 - x2)
 let posYDiff (x1, y1) (x2, y2) = abs (y1 - y2)
 let posDiff (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)

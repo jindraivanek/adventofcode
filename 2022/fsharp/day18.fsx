@@ -1,5 +1,5 @@
 #time
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/18.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/18.txt")
 
 let cubes =
     lines

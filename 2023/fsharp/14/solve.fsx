@@ -1,6 +1,6 @@
 #time
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/14.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../../input/2023/14.txt")
 //let lines = System.IO.File.ReadAllLines("sample")
 
 let dirs = [ (0, -1); (-1, 0); (0, 1); (1, 0) ]

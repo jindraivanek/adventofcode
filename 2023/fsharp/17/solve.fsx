@@ -1,6 +1,6 @@
 #time
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../../input/2023/17.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../../input/2023/17.txt")
 //let lines = System.IO.File.ReadAllLines("sample")
 
 let teePrint x =

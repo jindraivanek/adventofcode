@@ -1,5 +1,5 @@
 let maxWorry = 2L * 3L * 5L * 7L * 11L * 13L * 17L * 19L * 23L // hardcoded by max prime in inputs
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/11.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/11.txt")
 let splittedLines = lines |> Array.chunkBySize 7
 
 open System.Text.RegularExpressions

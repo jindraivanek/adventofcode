@@ -3,7 +3,7 @@
 
 open FParsec
 
-let lines = System.IO.File.ReadAllLines("__SOURCE_DIRECTORY__/../../../input/2022/13.txt")
+let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2022/13.txt")
 
 type Packet =
     | Number of int
