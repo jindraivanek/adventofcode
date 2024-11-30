@@ -15,8 +15,10 @@ type Day<'s1, 's2> = {
 let readLines (day: int) = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2023/%02i{day}.txt")
 
 let runSolution (sol: Solution<'s>) (lines: string[]) =
-    sol.Init lines |> Seq.unfold (fun s -> sol.Step s |> Option.map (fun x -> x, x)) |> Seq.last |> sol.Result
+    let init = sol.Init lines 
+    init |> Seq.unfold (fun s -> sol.Step s |> Option.map (fun x -> x, x)) |> Seq.tryLast |> Option.defaultValue init |> sol.Result
 
-let runDay (day: Day<'s1, 's2>) (lines: string[]) =
+let runDay (day: Day<'s1, 's2>) =
+    let lines = readLines day.Day
     printfn "Day %i - Part 1: %s" day.Day (runSolution day.Part1 lines)
-    printfn "Day %iPart 2: %s" day.Day (runSolution day.Part2 lines)
+    printfn "Day %i - Part 2: %s" day.Day (runSolution day.Part2 lines)

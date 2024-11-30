@@ -1,5 +1,5 @@
 module day01
-let lines = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../../input/2023/01.txt")
+open Common
 
 let numbers lines =
     lines
@@ -39,8 +39,20 @@ let numberOrWords lines =
 
         sprintf "%s%s" (string first) (string last) |> int)
 
-let part1 = numbers lines |> Seq.sum
-let part2 = numberOrWords lines |> Seq.sum
+let part1 = {
+    Init = numbers
+    Step = fun _ -> None
+    Result = Seq.sum >> string
+}
 
-printfn $"{part1}"
-printfn $"{part2}"
+let part2 = {
+    Init = numberOrWords
+    Step = fun _ -> None
+    Result = Seq.sum >> string
+}
+
+let sol = {
+    Day = 1
+    Part1 = part1
+    Part2 = part2
+}

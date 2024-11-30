@@ -1,6 +1,6 @@
+open Common
 let runAll() =
-    day01.part1 |> printfn "Day01: %i"
-    day01.part2 |> printfn "Day01: %i"
+    runDay day01.sol
     day02.part1 |> printfn "Day02: %i"
     day02.part2 |> printfn "Day02: %i"
     day03.part1 |> printfn "Day03: %i"
