@@ -15,14 +15,6 @@ let part2 lines =
 
 let sol = {
     Day = 1
-    Part1 = {
-        Init = part1
-        Step = fun _ -> None
-        Result = Seq.sum >> string
-    }
-    Part2 = {
-        Init = part2
-        Step = fun _ -> None
-        Result = Seq.sum >> string
-    }
+    Part1 = solution part1 (Seq.sum >> string)
+    Part2 = solution part2 (Seq.sum >> string)
 }

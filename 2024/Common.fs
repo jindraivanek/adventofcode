@@ -12,6 +12,8 @@ type Day<'s1, 's2> = {
     Part2: Solution<'s2>
 }
 
+let solution init result = { Init = init; Step = (fun _ -> None); Result = result }
+
 let readLines (day: int) = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../input/2024/%02i{day}.txt")
 
 let benchmark label f =

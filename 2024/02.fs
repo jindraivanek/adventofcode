@@ -20,14 +20,6 @@ let part2 lines =
 
 let sol = {
     Day = 2
-    Part1 = {
-        Init = part1
-        Step = fun _ -> None
-        Result = Seq.length >> string
-    }
-    Part2 = {
-        Init = part2
-        Step = fun _ -> None
-        Result = Seq.length >> string
-    }
+    Part1 = solution part1 (Seq.length >> string)
+    Part2 = solution part2 (Seq.length >> string)
 }
