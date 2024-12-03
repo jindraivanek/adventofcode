@@ -30,3 +30,13 @@ let runDay (day: Day<'s1, 's2>) =
     let lines = readLines day.Day
     benchmark $"Day %i{day.Day} - Part 1" (fun () -> runSolution day.Part1 lines)
     benchmark $"Day %i{day.Day} - Part 2" (fun () -> runSolution day.Part2 lines)
+
+open System.Text.RegularExpressions
+
+let (|Match|_|) (pat: string) (inp: string) =
+    let m = Regex.Match(inp, pat) in
+
+    if m.Success then
+        Some(List.tail [ for g in m.Groups -> g.Value ])
+    else
+        None
