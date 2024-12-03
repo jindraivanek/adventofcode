@@ -14,7 +14,13 @@ type Day<'s1, 's2> = {
 
 let solution init result = { Init = init; Step = (fun _ -> None); Result = result }
 
-let readLines (day: int) = System.IO.File.ReadAllLines($"%s{__SOURCE_DIRECTORY__}/../input/2024/%02i{day}.txt")
+let readLines (day: int) = 
+    let filename = $"%s{__SOURCE_DIRECTORY__}/../input/2024/%02i{day}.txt"
+    if System.IO.File.Exists(filename) then
+        Some (System.IO.File.ReadAllLines(filename))
+    else
+        None
+        
 
 let benchmark label f =
     let sw = System.Diagnostics.Stopwatch.StartNew()
@@ -27,9 +33,12 @@ let runSolution (sol: Solution<'s>) (lines: string[]) =
     init |> Seq.unfold (fun s -> sol.Step s |> Option.map (fun x -> x, x)) |> Seq.tryLast |> Option.defaultValue init |> sol.Result
 
 let runDay (day: Day<'s1, 's2>) =
-    let lines = readLines day.Day
-    benchmark $"Day %i{day.Day} - Part 1" (fun () -> runSolution day.Part1 lines)
-    benchmark $"Day %i{day.Day} - Part 2" (fun () -> runSolution day.Part2 lines)
+    match readLines day.Day with
+    | Some lines ->
+        benchmark $"Day %i{day.Day} - Part 1" (fun () -> runSolution day.Part1 lines)
+        benchmark $"Day %i{day.Day} - Part 2" (fun () -> runSolution day.Part2 lines)
+    | None ->
+        printfn $"Input file for day %i{day.Day} does not exist"
 
 open System.Text.RegularExpressions
 
