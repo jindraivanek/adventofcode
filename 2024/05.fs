@@ -17,28 +17,19 @@ let part1 lines =
 
 let part2 lines = 
    let swap i j (arr: _[]) = 
-       printfn "%A -> %A" arr[j] arr[i]
        let tmp = arr[i]
        arr[i] <- arr[j]
        arr[j] <- tmp
    let ordering, updates = parseInput lines
-   let orderIndex = ordering |> List.map snd |> List.countBy id |> Map.ofList
-   let orderIndex2 = ordering |> List.map fst |> List.countBy id |> Map.ofList
-   //let orderItems = ordering |> Seq.collect (fun (a,b) -> [a;b]) |> Seq.distinct |> Seq.sortBy (fun x -> orderIndex[x]) |> Seq.toList
-   //printfn "%A" (ordering.Length, orderItems.Length)
    updates
-   |> Seq.map (fun u -> 
+   |> Seq.choose (fun u -> 
        let u = u |> Seq.toArray
-       let rec order() =
-        if ordering |> List.exists (fun (a, b) -> match Array.tryFindIndex ((=)a) u, Array.tryFindIndex ((=)b) u with | Some i, Some j when i > j -> swap i j u; true | _ -> false) then order()
-       printfn "%A" u
-       order()
-       printfn "%A" u
-       if Seq.length u <> Seq.length (Seq.distinct u) then
-        printfn "%A" u
-       if ordering |> List.exists (fun (a, b) -> match Array.tryFindIndex ((=)a) u, Array.tryFindIndex ((=)b) u with | Some i, Some j when i > j -> true | _ -> false) then
-        printfn "%A" u
-       u |> Array.toList)
+       let rec order changed =
+        if ordering |> List.exists (fun (a, b) -> match Array.tryFindIndex ((=)a) u, Array.tryFindIndex ((=)b) u with | Some i, Some j when i > j -> swap i j u; true | _ -> false) then
+            order true
+        else changed
+       let r = order false
+       if r then Some (Array.toList u) else None)
 
 let sol = {
     Day = 5
