@@ -1,39 +1,47 @@
 module day06
 open Common
 
-type State = { Floor: Set<int * int>; Guard: int * int; Start: int * int; GuardDir: int; MapSize: int * int; Visited: Set<int * int>; VisitedRoute: Set<(int * int) * int>; LoopObstacles: Set<int * int> }
+type State = { Floor: Set<int * int>; Wall: Set<int * int>; Guard: int * int; Start: int * int; GuardDir: int; MapSize: int * int; Visited: Set<int * int>; VisitedRoute: Set<(int * int) * int>; LoopObstacles: Set<int * int>; Sim: Set<(int * int) * int>; IsLoop: bool }
+
+let mutable initState = Unchecked.defaultof<State>
 
 let init (lines: string[]) =
     let m = lines |> Seq.mapi (fun j l -> l |> Seq.mapi (fun i c -> c, (i, j))) |> Seq.collect id
-    //let o = m |> Map.filter (fun c _ -> c = '#') |> Map.toSeq |> Seq.map fst |> set
+    let w = m |> Seq.filter (fun (c, _) -> c = '#') |> Seq.map snd |> set
     let e = m |> Seq.filter (fun (c, _) -> c = '.') |> Seq.map snd |> set
     let g = m |> Seq.find (fun (c, _) -> c = '^') |> snd
     printfn "%A" e
     printfn "%A" g
-    {
-        Floor = e |> Set.add g
-        Visited = set [g]
-        VisitedRoute = set [g, 0]
-        Start = g
-        Guard = g
-        GuardDir = 0
-        MapSize = (lines.[0].Length, lines.Length)
-        LoopObstacles = set []
-    }
+    let s =
+        {
+            Floor = e |> Set.add g
+            Wall = w
+            Visited = set [g]
+            VisitedRoute = set [g, 0]
+            Start = g
+            Guard = g
+            GuardDir = 0
+            MapSize = (lines.[0].Length, lines.Length)
+            LoopObstacles = set []
+            Sim = Set.empty
+            IsLoop = false
+        }
+    initState <- s
+    s
 
 
 let dirs = [ (0, -1); (1, 0); (0, 1); (-1, 0) ]
 let posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
 
 let isInMap' (x, y) s = x >= 0 && x < fst s.MapSize && y >= 0 && y < snd s.MapSize
-let isInMap s = isInMap' (posPlus s.Guard dirs[s.GuardDir]) s
+let isInMap s = isInMap' s.Guard s
 
 let turnRight s = { s with GuardDir = (s.GuardDir + 1) % 4 }
 
 let step s =
     let g2 = posPlus s.Guard dirs[s.GuardDir]
     let s2 =
-        if s.Floor |> Set.contains g2 |> not then turnRight s
+        if s.Wall |> Set.contains g2 then turnRight s
         else { s with 
                 Guard = g2
                 Visited = Set.add g2 s.Visited
@@ -69,6 +77,7 @@ let part1Sol = {
 
 let isInLoop s =
     let s2 = step s
+    //let lineLoop = s.VisitedRoute |> Seq.groupBy fst |> Seq.exists (fun (g, xs) -> (xs |> Seq.map snd |> Seq.sort |> Seq.toList) |> fun x -> x = [0;2] || x = [1;3])
     s.VisitedRoute |> Set.contains (s2.Guard, s2.GuardDir)
 let isInLoopByHistory xs =
     xs |> Seq.fold (fun (s,b) x -> if b then (s, b) elif Set.contains x s then (s, true) else Set.add x s, false) (Set.empty, false)
@@ -80,18 +89,20 @@ let runFinishCond init cond step =
 
 let part2 s = 
     let s2 = step s
-    let o =
-        //if s.Guard <> s2.Guard then
-            let sim = runFinishCond (turnRight s) (fun s -> isInLoop s || not(isInMap s)) step |> Seq.last
-            //let sim = runFinishCond (turnRight s) (fun s -> not(isInMap s)) step
-            if isInLoop sim then 
-                printfn "O %A" s2.Guard
-                Set.add s2.Guard s.LoopObstacles
-            else s.LoopObstacles
-        //else s.LoopObstacles
+    let s2 =
+        if s.Guard <> s2.Guard then
+            //let sim = runFinishCond ({ s with Wall = Set.add (posPlus s.Guard dirs[s.GuardDir]) s.Wall}) (fun s -> isInLoop s || not(isInMap s)) step |> Seq.toList
+            let sim = runFinishCond ({ initState with Wall = Set.add (posPlus s.Guard dirs[s.GuardDir]) s.Wall}) (fun s -> isInLoop s || not(isInMap s)) step |> Seq.toList
+            let o =
+                if isInLoop (sim |> Seq.last) then 
+                    printfn "O %A" s2.Guard
+                    { s2 with LoopObstacles = Set.add s2.Guard s.LoopObstacles; IsLoop = true }
+                else { s2 with IsLoop = false }
+            { o with Sim = sim |> List.map (fun s -> s.Guard, s.GuardDir) |> Set.ofList }
+        else s2
     if isInMap s2 then 
         //printfn "%A %A" s2.Guard dirs[s2.GuardDir]
-        Some { s2 with LoopObstacles = o } else None
+        Some s2 else None
 
 let part2Sol = {
     Init = init
@@ -101,6 +112,6 @@ let part2Sol = {
 
 let sol = {
     Day = 6
-    Part1 = part1Sol // 4432
-    Part2 = part2Sol // wrong: 1584
+    Part1 = part1Sol // 4433
+    Part2 = part2Sol // wrong: 1584, 1585, 1586
 }
