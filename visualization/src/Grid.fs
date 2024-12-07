@@ -5,3 +5,4 @@ type Block =
     | Player of (int * int)
     | Trail
     | Peek
+    | PeekHighlight

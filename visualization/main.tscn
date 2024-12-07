@@ -1,25 +1,18 @@
-[gd_scene load_steps=9 format=3 uid="uid://dmqvwcoco7s0y"]
+[gd_scene load_steps=6 format=3 uid="uid://dmqvwcoco7s0y"]
 
 [ext_resource type="Script" path="res://Main.cs" id="1_7ebs5"]
-[ext_resource type="Texture2D" uid="uid://cifabq0i3pk7t" path="res://assets/tree.png" id="3_bv765"]
-[ext_resource type="Texture2D" uid="uid://btg57g35kxukb" path="res://assets/tile.png" id="3_rm0qb"]
-[ext_resource type="Texture2D" uid="uid://cwvp4epb6tbm6" path="res://assets/player.png" id="4_plekx"]
+[ext_resource type="Texture2D" uid="uid://btg57g35kxukb" path="res://assets/tile.png" id="4_plekx"]
 
 [sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_bb165"]
-texture = ExtResource("3_bv765")
+texture = ExtResource("4_plekx")
 0:0/0 = 0
 0:0/0/modulate = Color(0.280431, 0.572276, 0.252639, 1)
 0:0/0/physics_layer_0/polygon_0/points = PackedVector2Array(-8, -8, 8, -8, 8, 8, -8, 8)
-
-[sub_resource type="TileSetAtlasSource" id="TileSetAtlasSource_01ubb"]
-texture = ExtResource("3_rm0qb")
-0:0/0 = 0
 
 [sub_resource type="TileSet" id="TileSet_fe8bh"]
 uv_clipping = true
 physics_layer_0/collision_layer = 1
 sources/1 = SubResource("TileSetAtlasSource_bb165")
-sources/2 = SubResource("TileSetAtlasSource_01ubb")
 
 [sub_resource type="RectangleShape2D" id="RectangleShape2D_3161s"]
 size = Vector2(14, 14)
