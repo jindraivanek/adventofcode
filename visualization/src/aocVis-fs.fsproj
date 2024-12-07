@@ -1,0 +1,18 @@
+<Project Sdk="Godot.NET.Sdk/4.3.0">
+  <PropertyGroup>
+    <TargetFramework>net6.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'android' ">net7.0</TargetFramework>
+    <TargetFramework Condition=" '$(GodotTargetPlatform)' == 'ios' ">net8.0</TargetFramework>
+    <EnableDynamicLoading>true</EnableDynamicLoading>
+    <RootNamespace>aocVis</RootNamespace>
+  </PropertyGroup>
+  <ItemGroup>
+    <Compile Include="../../2024/Common.fs" />
+    <Compile Include="../../2024/06.fs" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="Grid.fs" />
+    <Compile Include="06vis.fs" />
+    <Compile Include="Main.fs" />
+  </ItemGroup>
+</Project>
