@@ -54,3 +54,13 @@ let (|Match|_|) (pat: string) (inp: string) =
         Some(List.tail [ for g in m.Groups -> g.Value ])
     else
         None
+
+let memoize f =
+    let cache = System.Collections.Generic.Dictionary<_, _>()
+    fun x ->
+        match cache.TryGetValue(x) with
+        | true, v -> v
+        | false, _ ->
+            let v = f x
+            cache.Add(x, v)
+            v
