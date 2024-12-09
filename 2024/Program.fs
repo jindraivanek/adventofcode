@@ -27,4 +27,4 @@ let runAll() =
     runDay day25.sol
  
 //Common.benchmark "TOTAL" runAll
-Common.benchmark "CURRENT" (fun () -> runDay day08.sol)
+Common.benchmark "CURRENT" (fun () -> runDay day09.sol)
