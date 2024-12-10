@@ -1,8 +1,12 @@
 module day10
 open Common
 
-let parseInput (lines: string[]) =
-    lines
+let dirs = [ (0, -1); (-1, 0); (0, 1); (1, 0) ]
+let init (lines: string[]) =
+    let m = lines |> Seq.mapi (fun j l -> l |> Seq.mapi (fun i c -> (i, j), int (string c))) |> Seq.collect id |> Map.ofSeq
+    let starts = m |> Map.filter (fun _ v -> v = 0) |> Map.toSeq |> Seq.map fst
+    let edges = 
+    m
 
 let part1 lines = 
    parseInput lines
