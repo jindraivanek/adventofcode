@@ -64,3 +64,16 @@ let memoize f =
             let v = f x
             cache.Add(x, v)
             v
+
+let memoizeRec f =
+    let cache = System.Collections.Generic.Dictionary<_, _>()
+
+    let rec f' x =
+        match cache.TryGetValue x with
+        | true, v -> v
+        | _ ->
+            let v = f f' x
+            cache.Add(x, v)
+            v
+
+    f'

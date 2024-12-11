@@ -11,23 +11,14 @@ let applyRules x =
     | _ when s.Length % 2 = 0 -> [int64 s[0..s.Length/2 - 1]; int64 s[s.Length/2..]]
     | _ -> [x * 2024L]
 
-let solve n (i, xs) = 
-   xs |> Seq.collect applyRules |> Seq.toList |> fun x -> 
-   if i = n then None else 
-    printfn "%A" x
-    Some (i+1, x)
+let stoneSizeMem = memoizeRec <| fun recF (n, x) ->
+    if n = 0 then 1L
+    else applyRules x |> Seq.sumBy (fun y -> recF ((n-1), y))
 
-let part2 lines = 
-    parseInput lines
-
-let partSol n = {
-    Init = parseInput >> fun x -> (0, x)
-    Step = solve n
-    Result = (fun (_,s) -> Seq.length s |> string)
-}
+let solveMem n xs = xs |> Seq.map (fun x -> stoneSizeMem (n, x))
 
 let sol = {
     Day = 11
-    Part1 = partSol 25
-    Part2 = partSol 75
+    Part1 = solution parseInput (solveMem 25 >> Seq.sum >> string)
+    Part2 = solution parseInput (solveMem 75 >> Seq.sum >> string)
 }
