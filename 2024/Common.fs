@@ -81,3 +81,4 @@ let memoizeRec f =
 module Grid =
     let dirs = [ (0, -1); (1, 0); (0, 1); (-1, 0) ]
     let posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+    let posMult (x1, y1) c = (x1 * c, y1 * c)
