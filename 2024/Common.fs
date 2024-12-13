@@ -78,6 +78,16 @@ let memoizeRec f =
 
     f'
 
+let splitBy f xs  =
+    let rec go xs = seq {
+        let l = Seq.length xs
+        if l > 0 then
+            let part = Seq.takeWhile (f >> not) xs |> Seq.toList
+            yield part
+            yield! go (Seq.skip (min l (part.Length + 1)) xs)
+    }
+    go xs
+
 module Grid =
     let dirs = [ (0, -1); (1, 0); (0, 1); (-1, 0) ]
     let posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
