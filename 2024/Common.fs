@@ -2,7 +2,7 @@ module Common
 
 type Solution<'s> = {
     Init: string[] -> 's
-    Step: 's -> 's option
+    Step: int ->'s -> 's option
     Result: 's -> string
 }
 
@@ -12,7 +12,7 @@ type Day<'s1, 's2> = {
     Part2: Solution<'s2>
 }
 
-let solution init result = { Init = init; Step = (fun _ -> None); Result = result }
+let solution init result = { Init = init; Step = (fun _ _ -> None); Result = result }
 
 let readLines (day: int) extra= 
     let filename = $"%s{__SOURCE_DIRECTORY__}/../input/2024/%02i{day}{extra}.txt"
@@ -28,7 +28,7 @@ let benchmark label f =
     sw.Stop()
     printfn $"%s{label}: %A{x} [%A{sw.Elapsed}]"
 
-let run init step = init |> Seq.unfold (fun s -> step s |> Option.map (fun x -> x, x))
+let run init step = (0, init) |> Seq.unfold (fun (i, s) -> step i s |> Option.map (fun x -> x, (i+1, x)))
 
 let runSolution (sol: Solution<'s>) (lines: string[]) =
     let init = sol.Init lines 
@@ -44,6 +44,8 @@ let private runDay' extraInputName (day: Day<'s1, 's2>) =
         
 let runDaySample (day: Day<'s1, 's2>) = runDay' "_sample" day
 let runDay (day: Day<'s1, 's2>) = runDay' "" day
+
+//-----
 
 open System.Text.RegularExpressions
 
