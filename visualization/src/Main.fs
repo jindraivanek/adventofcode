@@ -13,6 +13,7 @@ type MainFs(this: Node2D) =
           tileMap = this.GetNode<TileMapLayer>("TileMap")
           camera = this.GetNode<Camera2D>("Player/Camera2D")
           player = this.GetNode<CharacterBody2D>("Player")
+          labelSteps = this.GetNode<Label>("Steps")
         |}
     
     let getModulatedSource srcId textureImg color = 
@@ -34,9 +35,14 @@ type MainFs(this: Node2D) =
     let peek = getModulatedSource 1 "res://assets/player.png" (Color(0.5f, 0.5f, 0.5f, 0.5f))
     let trail = getModulatedSource 1 "res://assets/player.png" (Color(0.f, 0.f, 0.5f, 0.5f))
 
+    let sol = fs.day14.sol |> Seq.toArray
+
     let drawStep step =
+        let step = step % sol.Length
+        loadRes.Value.labelSteps.Text <- step.ToString()
+        GD.Print(step.ToString())
         let res = loadRes.Value
-        let grid = fs.day06.sol[step % fs.day06.sol.Length] 
+        let grid = sol[step] 
         res.player.Position <- Vector2((float32 (fst grid.Size)) / 2.f * 16.f, (float32 (snd grid.Size)) / 2.f * 16.f)
         res.tileMap.Clear()
         grid.Grid |> Map.iter (fun (i, j) ->
@@ -44,8 +50,8 @@ type MainFs(this: Node2D) =
             | Grid.Floor -> res.tileMap.SetCell(Vector2I(i, j), -1)
             | Grid.Wall -> res.tileMap.SetCell(Vector2I(i, j), wall.Value, Vector2I(0, 0))
             | Grid.Player _ -> 
-                if s.Guard = s.Start then
-                    res.player.Position <- Vector2((float32 i) * 16.f, (float32 j) * 16.f)
+                // if s.Guard = s.Start then
+                //     res.player.Position <- Vector2((float32 i) * 16.f, (float32 j) * 16.f)
                 res.tileMap.SetCell(Vector2I(i, j), player.Value, Vector2I(0, 0))
             | Grid.Peek -> res.tileMap.SetCell(Vector2I(i, j), peek.Value, Vector2I(0, 0))
             | Grid.PeekHighlight -> res.tileMap.SetCell(Vector2I(i, j), peekHigh.Value, Vector2I(0, 0))
@@ -53,21 +59,24 @@ type MainFs(this: Node2D) =
             )
 
     let time = System.Diagnostics.Stopwatch.StartNew()
-    let sol = fs.day06.sol |> Seq.toArray
-    let mutable step = sol.Length - 1
+    let mutable step = 113.
+    let mutable speed = 2.
     
     member _.ready() = 
-       drawStep step
+       drawStep (int step)
        time.Restart()
         
-    member _.process() = 
+    member _.process(delta) = 
         let res = loadRes.Value
         let moveDir = Input.GetVector("left", "right", "up", "down")
         res.player.Velocity <- moveDir * moveSpeed
         res.player.MoveAndSlide()
 
-        let step = time.Elapsed.TotalSeconds * 20. |> int
-        drawStep step
+        //let step = time.Elapsed.TotalSeconds * 2. |> int
+        if speed <> 0.0 then
+            step <- step + (delta * speed)
+        step <- step % float sol.Length
+        drawStep (int step)
 
     member _.input(event: InputEvent) =
         let res = loadRes.Value
@@ -81,7 +90,12 @@ type MainFs(this: Node2D) =
         | :? InputEventKey as e when e.Pressed ->
             //GD.Print(e.AsText())
             match e.Keycode with
-            | Key.Up -> step <- step + 1
-            | Key.Down -> step <- step - 1
+            | Key.Up -> step <- step + 1.
+            | Key.Down -> step <- step - 1.
+            | Key.Pageup -> step <- step + 101.
+            | Key.Pagedown -> step <- step - 101.
+            | Key.Right -> speed <- min (speed * 2.) 1024.
+            | Key.Left -> speed <- max (speed / 2.) (1. / 128.)
+            | Key.Space -> if speed = 0. then speed <- 2. else speed <- 0. 
             | _ -> ()
         | _ -> ()

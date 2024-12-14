@@ -2,7 +2,7 @@
 # Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "aocVis", "aocVis.csproj", "{B8655814-74C4-47F8-A671-6BFF3110EACE}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "aocVis-fs", "aocVis-fs.fsproj", "{27F4343F-A5D7-4E71-BDD6-B45572DECDB6}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "aocVis-fs", "src/aocVis-fs.fsproj", "{27F4343F-A5D7-4E71-BDD6-B45572DECDB6}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

@@ -9,10 +9,12 @@
   <ItemGroup>
     <Compile Include="../../2024/Common.fs" />
     <Compile Include="../../2024/06.fs" />
+    <Compile Include="../../2024/14.fs" />
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Grid.fs" />
     <Compile Include="06vis.fs" />
+    <Compile Include="14vis.fs" />
     <Compile Include="Main.fs" />
   </ItemGroup>
 </Project>

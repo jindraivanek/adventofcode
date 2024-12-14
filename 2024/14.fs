@@ -27,26 +27,27 @@ let quadrantCounts (s: State) =
     s.Robots
     |> Seq.map fst
     |> Seq.countBy (quadrant s.Size)
-    |> Seq.filter (fun ((q1, q2), _) -> q1 * q2 <> 0)
     |> Seq.toList
 
+let quadrantScore s = s |> quadrantCounts |> Seq.filter (fun ((q1, q2), _) -> q1 * q2 <> 0) |> Seq.map (snd >> int64) |> Seq.reduce (*)
 let step i (s: State) =
-    printfn "%A" (i, (s.Robots |> List.map id), quadrantCounts s)
+    //printfn "%A" (i, (s.Robots |> List.map id), quadrantCounts s)
+    //printfn "%A" (i, quadrantScore s)
 
     { s with
         Robots = s.Robots |> List.map (fun (p, v) -> posPlusMod s.Size p v, v) }
 
-let part1 i s =
-    if i >= 100 then None else Some(step i s)
+let stepUntilCond f i s =
+    if f i s then None else Some(step i s)
 
-let part1sol =
+
+let part1 n =
     { Init = parseInput
-      Step = part1
-      Result = (fun s -> s |> quadrantCounts |> Seq.map (snd >> int64) |> Seq.reduce (*) |> string) }
+      Step = stepUntilCond (fun i _ -> i >= n)
+      Result = (fun s -> quadrantScore s |> string) }
 
-let part2 lines = parseInput lines
-
+let part2 = part1 10403
 let sol =
     { Day = 14
-      Part1 = part1sol
-      Part2 = solution part2 (_.Robots >> Seq.length >> string) }
+      Part1 = part1 100
+      Part2 = solution part2.Init (fun x -> run x part2.Step |> Seq.map quadrantScore |> Seq.indexed |> Seq.minBy snd |> string) }

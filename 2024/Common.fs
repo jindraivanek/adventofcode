@@ -28,7 +28,7 @@ let benchmark label f =
     sw.Stop()
     printfn $"%s{label}: %A{x} [%A{sw.Elapsed}]"
 
-let run init step = (0, init) |> Seq.unfold (fun (i, s) -> step i s |> Option.map (fun x -> x, (i+1, x)))
+let run init step = (0, init) |> Seq.unfold (fun (i, s) -> step i s |> Option.map (fun x -> x, (i+1, x))) |> Seq.append [init]
 
 let runSolution (sol: Solution<'s>) (lines: string[]) =
     let init = sol.Init lines 
