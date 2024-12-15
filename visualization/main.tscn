@@ -53,3 +53,11 @@ text = "0"
 label_settings = SubResource("LabelSettings_iunjc")
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="Label" type="Label" parent="."]
+offset_top = -89.0
+offset_right = 97.0
+offset_bottom = -1.0
+label_settings = SubResource("LabelSettings_iunjc")
+horizontal_alignment = 1
+vertical_alignment = 1

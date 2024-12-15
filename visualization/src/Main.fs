@@ -14,6 +14,7 @@ type MainFs(this: Node2D) =
           camera = this.GetNode<Camera2D>("Player/Camera2D")
           player = this.GetNode<CharacterBody2D>("Player")
           labelSteps = this.GetNode<Label>("Steps")
+          label = this.GetNode<Label>("Label")
         |}
     
     let getModulatedSource srcId textureImg color = 
@@ -40,6 +41,7 @@ type MainFs(this: Node2D) =
     let drawStep step =
         let step = step % sol.Length
         loadRes.Value.labelSteps.Text <- step.ToString()
+        loadRes.Value.label.Text <- sol[step].Label
         GD.Print(step.ToString())
         let res = loadRes.Value
         let grid = sol[step] 
