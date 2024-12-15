@@ -35,7 +35,7 @@ type MainFs(this: Node2D) =
     let peek = getModulatedSource 1 "res://assets/player.png" (Color(0.5f, 0.5f, 0.5f, 0.5f))
     let trail = getModulatedSource 1 "res://assets/player.png" (Color(0.f, 0.f, 0.5f, 0.5f))
 
-    let sol = fs.day14.sol |> Seq.toArray
+    let sol = fs.day15.sol |> Seq.toArray
 
     let drawStep step =
         let step = step % sol.Length
@@ -59,7 +59,7 @@ type MainFs(this: Node2D) =
             )
 
     let time = System.Diagnostics.Stopwatch.StartNew()
-    let mutable step = 113.
+    let mutable step = 0.
     let mutable speed = 2.
     
     member _.ready() = 

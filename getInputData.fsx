@@ -16,6 +16,8 @@ let getInputData (year: int) (day: int) =
         let data = response.Content.ReadAsStringAsync().Result
         System.IO.Directory.CreateDirectory(System.IO.Path.GetDirectoryName(inputDataPath)) |> ignore
         System.IO.File.WriteAllText(inputDataPath, data)
+        let sampleDataPath = $"input/%04i{year}/%02i{day}_sample.txt"
+        System.IO.File.WriteAllText(sampleDataPath, "")
 
 let getAllData () =
     let now = System.DateTime.Now.Date
