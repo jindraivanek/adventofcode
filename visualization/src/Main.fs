@@ -62,7 +62,8 @@ type MainFs(this: Node2D) =
 
     let time = System.Diagnostics.Stopwatch.StartNew()
     let mutable step = 0.
-    let mutable speed = 2.
+    let mutable speed = 8.
+    let mutable paused = true
     
     member _.ready() = 
        drawStep (int step)
@@ -75,7 +76,7 @@ type MainFs(this: Node2D) =
         res.player.MoveAndSlide()
 
         //let step = time.Elapsed.TotalSeconds * 2. |> int
-        if speed <> 0.0 then
+        if not paused then
             step <- step + (delta * speed)
         step <- step % float sol.Length
         drawStep (int step)
@@ -98,6 +99,6 @@ type MainFs(this: Node2D) =
             | Key.Pagedown -> step <- step - 101.
             | Key.Right -> speed <- min (speed * 2.) 1024.
             | Key.Left -> speed <- max (speed / 2.) (1. / 128.)
-            | Key.Space -> if speed = 0. then speed <- 2. else speed <- 0. 
+            | Key.Space -> paused <- not paused
             | _ -> ()
         | _ -> ()
