@@ -32,7 +32,7 @@ let run init step = (0, init) |> Seq.unfold (fun (i, s) -> step i s |> Option.ma
 
 let runSolution (sol: Solution<'s>) (lines: string[]) =
     let init = sol.Init lines 
-    run init sol.Step  |> Seq.tryLast |> Option.defaultValue init |> sol.Result
+    run init sol.Step |> Seq.tryLast |> Option.defaultValue init |> sol.Result
 
 let private runDay' extraInputName (day: Day<'s1, 's2>) =
     match readLines day.Day extraInputName with
