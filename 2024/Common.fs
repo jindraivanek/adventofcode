@@ -21,6 +21,7 @@ let readLines (day: int) extra=
     else
         None
         
+let tee f x = f x; x
 
 let benchmark label f =
     let sw = System.Diagnostics.Stopwatch.StartNew()
