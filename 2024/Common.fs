@@ -91,9 +91,15 @@ let splitBy f xs  =
     }
     go xs
 
+module Seq =
+    let mapWithState f init xs = 
+        let mutable state = init
+        xs |> Seq.map (fun x -> let (s, y) = f state x in state <- s; y)
+
 module Grid =
     let dirs = [ (0, -1); (1, 0); (0, 1); (-1, 0) ]
     let posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
+    let posMinus (x1, y1) (x2, y2) = (x1 - x2, y1 - y2)
     let posMult (x1, y1) c = (x1 * c, y1 * c)
     let dist (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)
 
