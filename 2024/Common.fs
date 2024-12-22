@@ -96,3 +96,26 @@ module Grid =
     let posPlus (x1, y1) (x2, y2) = (x1 + x2, y1 + y2)
     let posMult (x1, y1) c = (x1 * c, y1 * c)
     let dist (x1, y1) (x2, y2) = abs (x1 - x2) + abs (y1 - y2)
+
+module Graph =
+    let floydWarshall (nodes: seq<'n>) edges =
+        let nodes = nodes |> Seq.toArray 
+        let n = Seq.length nodes
+        let nodeIndex = nodes |> Seq.indexed |> Seq.map (fun (i, v) -> v, i) |> Map.ofSeq
+        let index v = nodeIndex[v]
+        let dist = Array2D.init n n (fun i j -> if i = j then 0 else 99999)
+        for (u, v) in edges |> Seq.map (fun (u, v) -> index u, index v) do
+            dist[u,v] <- 1
+        for v in 0 .. n-1 do
+            dist[v,v] <- 0
+        for k in 0 .. n-1 do
+            for i in 0 .. n-1 do
+                for j in 0 .. n-1 do
+                    if dist[i,j] > dist[i,k] + dist[k,j] 
+                    then dist[i,j] <- dist[i,k] + dist[k,j]
+        seq {
+            for i in 0 .. n-1 do
+                for j in 0 .. n-1 do
+                    yield ((nodes[i], nodes[j]), dist[i,j])
+        } |> Map.ofSeq
+
