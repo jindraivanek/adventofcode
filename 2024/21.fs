@@ -53,8 +53,12 @@ let dirs = dirs |> Seq.sortBy (fun d -> Seq.findIndex ((=) dirToChar[d]) dirOrde
 let oneLayer s =
     ("A" + s) |> Seq.pairwise |> Seq.map (dirPadMoves) |> String.concat ""
 
-let rec layerN n s = 
-    if n = 0 then s else layerN (n-1) (oneLayer s)
+let pairLenMem = memoizeRec <| fun recF (n, a, b, isFirst) ->
+    if n = 0 then (dirPadMoves (a, b)).Length
+    else dirPadMoves (a, b) |> (if isFirst then (fun s -> "A" + s) else id) |> Seq.pairwise |> Seq.mapi (fun i (a,b) -> if isFirst && i = 0 then recF ((n-1), a, b, true) else recF ((n-1), a, b, false)) |> Seq.sum
+
+let layerN n s = 
+    ("A" + s) |> Seq.pairwise |> Seq.mapi (fun i (a, b) -> pairLenMem (n, a, b, i=0)) |> Seq.sum
 
 let getGraph (s: string) =
     let lines = s.Split(System.Environment.NewLine)
@@ -157,7 +161,7 @@ let solve n start numbers =
         dijkstra
             [ g.Map[start], 0 ]
             neighF
-            (fun (s: string) -> ((s) |> layerN n).Length)
+            (fun (s: string) -> ((s) |> layerN n))
             targets
             id
         |> Option.get
@@ -172,7 +176,8 @@ let part1 lines =
         let l1 = p |> oneLayer
         let full = p |> oneLayer |> oneLayer
         let cost = full |> _.Length
-        printfn "%i %A %A" cost s p
+        let cost2 = layerN 2 p
+        printfn "%i %i %A %A" cost cost2 s p
         printfn "%A" l1
         printfn "%A" full
         let x = s[.. s.Length - 2] |> int
@@ -184,11 +189,10 @@ let part2 lines =
     |> Seq.map (fun (s: string) ->
         let (_, p) = solve 25 'A' (Seq.toList s)
         let l1 = p |> oneLayer
-        let full = p |> layerN 25
-        let cost = full |> _.Length
+        let cost = p |> layerN 25
         printfn "%i %A %A" cost s p
         printfn "%A" l1
-        printfn "%A" full
+        printfn "%A" cost
         let x = s[.. s.Length - 2] |> int
         cost * x)
     |> Seq.toList
