@@ -53,12 +53,24 @@ let dirs = dirs |> Seq.sortBy (fun d -> Seq.findIndex ((=) dirToChar[d]) dirOrde
 let oneLayer s =
     ("A" + s) |> Seq.pairwise |> Seq.map (dirPadMoves) |> String.concat ""
 
-let pairLenMem = memoizeRec <| fun recF (n, a, b, isFirst) ->
-    if n = 0 then (dirPadMoves (a, b)).Length
-    else dirPadMoves (a, b) |> (if isFirst then (fun s -> "A" + s) else id) |> Seq.pairwise |> Seq.mapi (fun i (a,b) -> if isFirst && i = 0 then recF ((n-1), a, b, true) else recF ((n-1), a, b, false)) |> Seq.sum
+let pairLenMem = memoizeRec <| fun recF (n, a, b, start) ->
+    let s = dirPadMoves (a, b)
+    //printfn "%A -> %A" (a, b) s
+    if n = 1 || s.Length = 1 then s.Length, Seq.head s, Seq.last s
+    else 
+        let xs =
+            string start + s |> Seq.pairwise 
+            |> Seq.mapWithState (fun start (a,b) -> recF ((n-1), a, b, start) |> fun (x, s, e) -> e, (x, s, e)) start
+            |> Seq.toList
+        let first = xs |> List.head |> fun (_,c,_) -> c
+        let last = xs |> List.last |> fun (_,_,c) -> c
+        let s1 = xs |> Seq.sumBy (fun (a,_,_) -> a)
+        s1, first, Seq.last s
+        
 
 let layerN n s = 
-    ("A" + s) |> Seq.pairwise |> Seq.mapi (fun i (a, b) -> pairLenMem (n, a, b, i=0)) |> Seq.sum
+    //("" + s) |> Seq.pairwise |> Seq.mapWithState (fun start (a,b) -> pairLenMem ((n-1), a, b, start) |> fun (x, s, e) -> e, x) 'A' |> Seq.sum
+    ("A" + s) |> Seq.pairwise |> Seq.mapi (fun i (a, b) -> pairLenMem (n, a, b, a) |> fun (x, s, e) -> x) |> Seq.sum
 
 let getGraph (s: string) =
     let lines = s.Split(System.Environment.NewLine)
