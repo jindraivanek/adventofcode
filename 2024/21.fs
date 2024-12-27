@@ -18,33 +18,34 @@ let dirKeypadString =
 <v>
 """
 
-let dirPadMoves =
+let dirPadMovesMulti =
     function
-    | 'A', 'A' -> "A"
-    | 'A', '^' -> "<A"
-    | 'A', '>' -> "vA"
-    | 'A', 'v' -> "v<A"
-    | 'A', '<' -> "v<<A"
-    | '^', 'A' -> ">A"
-    | '^', '^' -> "A"
-    | '^', '>' -> "v>A"
-    | '^', 'v' -> "vA"
-    | '^', '<' -> "v<A"
-    | '>', 'A' -> "^A"
-    | '>', '^' -> "^<A"
-    | '>', '>' -> "A"
-    | '>', 'v' -> "<A"
-    | '>', '<' -> "<<A"
-    | 'v', 'A' -> "^>A"
-    | 'v', '^' -> "^A"
-    | 'v', '>' -> ">A"
-    | 'v', 'v' -> "A"
-    | 'v', '<' -> "<A"
-    | '<', 'A' -> ">>^A"
-    | '<', '^' -> ">^A"
-    | '<', '>' -> ">>A"
-    | '<', 'v' -> ">A"
-    | '<', '<' -> "A"
+    | 'A', 'A' -> ["A"]
+    | 'A', '^' -> ["<A"]
+    | 'A', '>' -> ["vA"]
+    | 'A', 'v' -> ["v<A"; "<vA"]
+    | 'A', '<' -> ["v<<A"; "<v<A"]
+    | '^', 'A' -> [">A"]
+    | '^', '^' -> ["A"]
+    | '^', '>' -> ["v>A"; ">vA"]
+    | '^', 'v' -> ["vA"]
+    | '^', '<' -> ["v<A"]
+    | '>', 'A' -> ["^A"]
+    | '>', '^' -> ["^<A"; "<^A"]
+    | '>', '>' -> ["A"]
+    | '>', 'v' -> ["<A"]
+    | '>', '<' -> ["<<A"]
+    | 'v', 'A' -> ["^>A"; ">^A"]
+    | 'v', '^' -> ["^A"]
+    | 'v', '>' -> [">A"]
+    | 'v', 'v' -> ["A"]
+    | 'v', '<' -> ["<A"]
+    | '<', 'A' -> [">>^A"; ">^>A"]
+    | '<', '^' -> [">^A"]
+    | '<', '>' -> [">>A"]
+    | '<', 'v' -> [">A"]
+    | '<', '<' -> ["A"]
+let dirPadMoves = dirPadMovesMulti >> List.head
 
 let dirToChar = Seq.zip dirs "^>v<" |> Map.ofSeq
 let dirOrder = [ '^'; '>'; 'v'; '<' ]
@@ -52,25 +53,26 @@ let dirs = dirs |> Seq.sortBy (fun d -> Seq.findIndex ((=) dirToChar[d]) dirOrde
 
 let oneLayer s =
     ("A" + s) |> Seq.pairwise |> Seq.map (dirPadMoves) |> String.concat ""
+    
+let rec oneLayerN n s = if n=0 then s else oneLayerN (n-1) (oneLayer s)
 
 let pairLenMem = memoizeRec <| fun recF (n, a, b, start) ->
-    let s = dirPadMoves (a, b)
-    //printfn "%A -> %A" (a, b) s
-    if n = 1 || s.Length = 1 then s.Length, Seq.head s, Seq.last s
+    let ss = dirPadMovesMulti (a, b)
+    ss |> List.map (fun s ->
+    if n = 1 || s.Length = 1 then int64 s.Length, s, Seq.last s
     else 
         let xs =
             string start + s |> Seq.pairwise 
             |> Seq.mapWithState (fun start (a,b) -> recF ((n-1), a, b, start) |> fun (x, s, e) -> e, (x, s, e)) start
             |> Seq.toList
-        let first = xs |> List.head |> fun (_,c,_) -> c
         let last = xs |> List.last |> fun (_,_,c) -> c
         let s1 = xs |> Seq.sumBy (fun (a,_,_) -> a)
-        s1, first, Seq.last s
-        
+        printfn "%A -> %A" (a, b, n, start) s1
+        s1, "", last
+    ) |> List.minBy (fun (x, _, _) -> x)
 
 let layerN n s = 
-    //("" + s) |> Seq.pairwise |> Seq.mapWithState (fun start (a,b) -> pairLenMem ((n-1), a, b, start) |> fun (x, s, e) -> e, x) 'A' |> Seq.sum
-    ("A" + s) |> Seq.pairwise |> Seq.mapi (fun i (a, b) -> pairLenMem (n, a, b, a) |> fun (x, s, e) -> x) |> Seq.sum
+    ("A" + s) |> Seq.pairwise |> Seq.mapWithState (fun start (a,b) -> pairLenMem (n, a, b, start) |> fun (x, s, e) -> e, x) 'A' |> Seq.sum
 
 let getGraph (s: string) =
     let lines = s.Split(System.Environment.NewLine)
@@ -116,10 +118,9 @@ let combGraph =
 
     {| Nodes = nodes; NeighF = neighF |}
 
-let dijkstra (initNodes: ('n * int) list) (neighF: 'n -> ('n * _) list) costF targets resultMap =
-    let pq = System.Collections.Generic.PriorityQueue<'n * string * 'n list, int>()
+let dijkstra (initNodes: ('n * int64) list) (neighF: 'n -> ('n * _) list) costF targets resultMap =
+    let pq = System.Collections.Generic.PriorityQueue<'n * string * 'n list, int64>()
     let visited = System.Collections.Generic.HashSet<_>()
-    let paths = System.Collections.Generic.Dictionary<_, _ list>()
     let mutable opt = None
 
     let dequeue () =
@@ -136,20 +137,16 @@ let dijkstra (initNodes: ('n * int) list) (neighF: 'n -> ('n * _) list) costF ta
     let rec step () =
         match dequeue (), opt with
         | Some(node, _), _ when visited.Contains(node) ->
-            //printfn $"Already visited: %A{node}, %A{p}"
             step ()
         | None, _ -> None
-        //| Some(node, p), Some o when finishCond node && p > o -> result p |> resultMap
         | Some((node, s, []), p), None ->
             printfn $"FINISH %A{node} %s{s} %A{p}"
             opt <- Some p
             Some(resultMap (p, s))
         | Some((node, s, t :: ts), p), None when t = node ->
-            //printfn $"Target %A{node} %s{s} %A{p}"
-            pq.Enqueue((node, s+"A", ts), p)
+            pq.Enqueue((node, s+"A", ts), costF (s + "A"))
             step()
         | Some(((n, s, ts) as node), p), _ ->
-            //printfn $"%A{node}, %A{p}"
             visited.Add(node) |> ignore
 
             neighF n
@@ -173,23 +170,22 @@ let solve n start numbers =
         dijkstra
             [ g.Map[start], 0 ]
             neighF
-            (fun (s: string) -> ((s) |> layerN n))
+            (fun (s: string) -> (s |> layerN n))
             targets
             id
         |> Option.get
-    //let cost = cost + (dirPadMoves (d, 'A') |> _.Length)
     printfn "%A" (start, numbers, s, cost)
     cost, s
 
 let part1 lines =
     lines
     |> Seq.map (fun (s: string) ->
-        let (_, p) = solve 2 'A' (Seq.toList s)
+        let (pathCost, p) = solve 2 'A' (Seq.toList s)
         let l1 = p |> oneLayer
-        let full = p |> oneLayer |> oneLayer
+        let full = p |> oneLayerN 2
         let cost = full |> _.Length
         let cost2 = layerN 2 p
-        printfn "%i %i %A %A" cost cost2 s p
+        printfn "%i %i %i %A %A" cost cost2 pathCost s p
         printfn "%A" l1
         printfn "%A" full
         let x = s[.. s.Length - 2] |> int
@@ -199,17 +195,19 @@ let part1 lines =
 let part2 lines =
     lines
     |> Seq.map (fun (s: string) ->
-        let (_, p) = solve 25 'A' (Seq.toList s)
+        let (pathCost, p) = solve 25 'A' (Seq.toList s)
         let l1 = p |> oneLayer
         let cost = p |> layerN 25
         printfn "%i %A %A" cost s p
         printfn "%A" l1
-        printfn "%A" cost
-        let x = s[.. s.Length - 2] |> int
+        printfn "%A" pathCost
+        let x = s[.. s.Length - 2] |> int64
+        printfn "%A" (cost * x)
         cost * x)
     |> Seq.toList
 
 let sol =
     { Day = 21
       Part1 = solution part1 (Seq.sum >> string)
-      Part2 = solution part2 (Seq.length >> string) }
+      Part2 = solution part2 (Seq.sum >> string)
+       }
