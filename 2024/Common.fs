@@ -81,6 +81,17 @@ let memoizeRec f =
 
     f'
 
+let memoizeBy g f =
+    let cache = System.Collections.Generic.Dictionary<_, _>()
+    fun x ->
+        let k = g x
+        match cache.TryGetValue(k) with
+        | true, v -> v
+        | false, _ ->
+            let v = f x
+            cache.Add(k, v)
+            v
+
 let splitBy f xs  =
     let rec go xs = seq {
         let l = Seq.length xs
@@ -95,6 +106,10 @@ module Seq =
     let mapWithState f init xs = 
         let mutable state = init
         xs |> Seq.map (fun x -> let (s, y) = f state x in state <- s; y)
+    let groupByAndMap f g xs =
+        xs
+        |> Seq.groupBy f
+        |> Seq.map (fun (k, vs) -> k, g vs)
 
 module Grid =
     let dirs = [ (0, -1); (1, 0); (0, 1); (-1, 0) ]
