@@ -64,9 +64,9 @@ let isInLoop s =
 
 let runFinishCond init cond step = 
     let mutable finish = false
-    run init (step >> fun _ s -> if finish then None elif cond s then finish <- true; Some s else Some s)
+    run init (fun _ s -> step s |> fun s -> if finish then None elif cond s then finish <- true; Some s else Some s)
 
-let sim = memoize <| fun extraWall -> runFinishCond { initState with Wall = Set.add extraWall initState.Wall} (fun s -> isInLoop s || not(isInMap s)) (fun _ -> step) |> Seq.toList
+let sim = memoize <| fun extraWall -> runFinishCond { initState with Wall = Set.add extraWall initState.Wall} (fun s -> isInLoop s || not(isInMap s)) step |> Seq.toList
 
 let part2 s = 
     let s2 = step s
