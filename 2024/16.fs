@@ -1,4 +1,5 @@
 module day16
+
 open Common
 open Common.Grid
 
@@ -20,13 +21,23 @@ let parseInput (lines: string[]) =
         |> List.ofSeq
 
     let finish = m |> Map.filter (fun _ v -> v = 'E') |> Map.toSeq |> Seq.map fst |> set
-    let floors = m |> Map.filter (fun _ v -> v <> '#') |> Map.toSeq |> Seq.map fst |> set
+
+    let floors =
+        m |> Map.filter (fun _ v -> v <> '#') |> Map.toSeq |> Seq.map fst |> set
+
     let dir i = dirs[i % dirs.Length]
 
     let neighF (p, di) =
         let d = dir di
-        let moves = [((posPlus p d), di), 1] |> List.filter (fun ((v, _), _) -> Set.contains v floors)
-        let rotates = [(p, (di + 1) % dirs.Length), 1000; (p, (di - 1) % dirs.Length), 1000] |> List.filter (fun ((p, i), _) -> Set.contains (posPlus p (dir i)) floors)
+
+        let moves =
+            [ ((posPlus p d), di), 1 ]
+            |> List.filter (fun ((v, _), _) -> Set.contains v floors)
+
+        let rotates =
+            [ (p, (di + 1) % dirs.Length), 1000; (p, (di - 1) % dirs.Length), 1000 ]
+            |> List.filter (fun ((p, i), _) -> Set.contains (posPlus p (dir i)) floors)
+
         moves @ rotates
 
     let isFinish (p, _) = Set.contains p finish
@@ -57,8 +68,9 @@ let dijkstra (initNodes: ('n * int) list) (neighF: 'n -> ('n * int) list) (finis
         let (v, _) = n
         paths.Add(n, (p, set [ v ])))
 
-    let result p = p, finishPaths |> Seq.collect id |> set |> Set.count 
-    
+    let result p =
+        p, finishPaths |> Seq.collect id |> set |> Set.count
+
     let rec step () =
         match dequeue (), opt with
         | Some(node, p), _ when visited.Contains(node) ->
@@ -70,24 +82,23 @@ let dijkstra (initNodes: ('n * int) list) (neighF: 'n -> ('n * int) list) (finis
             //printfn $"FINISH %A{node} %A{p}"
             opt <- Some p
             finishPaths.Add(snd paths[node]) |> ignore
-            step()
+            step ()
         | Some((node), p), _ ->
             //printfn $"%A{node}, %A{p}"
             visited.Add(node) |> ignore
 
             neighF node
-            |> Seq.iter (fun ((v,_) as n, p') ->
+            |> Seq.iter (fun ((v, _) as n, p') ->
                 let newPath = Set.add v (snd paths[node])
                 let c = p + p'
-                
+
                 if paths.ContainsKey n then
                     if c = fst paths[n] then
                         paths[n] <- c, snd paths[n] + newPath
                 else
                     paths.Add(n, (c, newPath))
 
-                pq.Enqueue(n, c)
-            )
+                pq.Enqueue(n, c))
 
             step ()
         | None, None -> failwith "No solution"
@@ -106,8 +117,8 @@ let part2 lines =
     r
 
 
-let sol = {
-    Day = 16
-    Part1 = solution part1 string
-    Part2 = solution part2 (string) //549 too high, 429 too low
-}
+let sol =
+    { Day = 16
+      Part1 = solution part1 string
+      Part2 = solution part2 (string) //549 too high, 429 too low
+    }

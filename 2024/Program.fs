@@ -1,5 +1,6 @@
 open Common
-let runAll() =
+
+let runAll () =
     runDay day01.sol
     runDay day02.sol
     runDay day03.sol
@@ -25,6 +26,6 @@ let runAll() =
     runDay day23.sol
     runDay day24.sol
     runDay day25.sol
- 
+
 Common.benchmark "TOTAL" runAll
-//Common.benchmark "CURRENT" (fun () -> runDay day24.sol)
+//Common.benchmark "CURRENT" (fun () -> runDay day06.sol)

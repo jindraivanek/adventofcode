@@ -45,5 +45,4 @@ let part2 lines =
 let sol =
     { Day = 5
       Part1 = solution part1 (Seq.map (fun xs -> xs[xs.Length / 2]) >> Seq.sum >> string)
-      Part2 = solution part2 (Seq.map (fun xs -> xs[xs.Length / 2]) >> Seq.sum >> string)
-    }
+      Part2 = solution part2 (Seq.map (fun xs -> xs[xs.Length / 2]) >> Seq.sum >> string) }
