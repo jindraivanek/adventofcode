@@ -1,8 +1,14 @@
 namespace fs
 
 open Godot
+
+module Common =
+    let inline (%) x y = ((x % y) + y) % y
+
+open Common
         
 type MainFs(this: Node2D) =
+    let sol = fs.day14.sol |> Seq.toArray
     let size = 32
     let moveSpeed = 1000.f
     let zoomSpeed = 0.1f
@@ -36,12 +42,10 @@ type MainFs(this: Node2D) =
     let peek = getModulatedSource 1 "res://assets/player.png" (Color(0.5f, 0.5f, 0.5f, 0.5f))
     let trail = getModulatedSource 1 "res://assets/player.png" (Color(0.f, 0.f, 0.5f, 0.5f))
 
-    let sol = fs.day15.sol |> Seq.toArray
-
     let drawStep step =
         let step = step % sol.Length
         loadRes.Value.labelSteps.Text <- step.ToString()
-        loadRes.Value.label.Text <- sol[step].Label
+        //loadRes.Value.label.Text <- sol[step].Label
         GD.Print(step.ToString())
         let res = loadRes.Value
         let grid = sol[step] 
@@ -66,6 +70,7 @@ type MainFs(this: Node2D) =
     let mutable paused = true
     
     member _.ready() = 
+       GD.Print(sol.Length)
        drawStep (int step)
        time.Restart()
         

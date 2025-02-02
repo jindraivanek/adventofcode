@@ -19,7 +19,7 @@ size = Vector2(14, 14)
 
 [sub_resource type="LabelSettings" id="LabelSettings_iunjc"]
 font_size = 64
-font_color = Color(0.760571, 0.000481308, 0.767677, 1)
+font_color = Color(0.721051, 0.843584, 0.913962, 1)
 
 [node name="Main" type="Node2D"]
 script = ExtResource("1_7ebs5")
@@ -30,7 +30,6 @@ tile_set = SubResource("TileSet_fe8bh")
 [node name="Player" type="CharacterBody2D" parent="."]
 
 [node name="Camera2D" type="Camera2D" parent="Player"]
-position = Vector2(1, 0)
 
 [node name="RemoteTransform2D" type="RemoteTransform2D" parent="Player"]
 remote_path = NodePath("../Camera2D")
