@@ -8,7 +8,7 @@ module Common =
 open Common
         
 type MainFs(this: Node2D) =
-    let sol = fs.day14.sol |> Seq.toArray
+    let sol = fs.day15.sol |> Seq.toArray
     let size = 32
     let moveSpeed = 1000.f
     let zoomSpeed = 0.1f
