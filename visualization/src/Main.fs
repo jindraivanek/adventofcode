@@ -56,8 +56,6 @@ type MainFs(this: Node2D) =
             | Grid.Floor -> res.tileMap.SetCell(Vector2I(i, j), -1)
             | Grid.Wall -> res.tileMap.SetCell(Vector2I(i, j), wall.Value, Vector2I(0, 0))
             | Grid.Player _ -> 
-                // if s.Guard = s.Start then
-                //     res.player.Position <- Vector2((float32 i) * 16.f, (float32 j) * 16.f)
                 res.tileMap.SetCell(Vector2I(i, j), player.Value, Vector2I(0, 0))
             | Grid.Peek -> res.tileMap.SetCell(Vector2I(i, j), peek.Value, Vector2I(0, 0))
             | Grid.PeekHighlight -> res.tileMap.SetCell(Vector2I(i, j), peekHigh.Value, Vector2I(0, 0))

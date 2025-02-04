@@ -1,0 +1,62 @@
+{
+  "$schema": "https://aka.ms/codetour-schema",
+  "title": "2025_visulisation_presentation",
+  "steps": [
+    {
+      "file": "README",
+      "description": "Intro",
+      "line": 1
+    },
+    {
+      "file": "README",
+      "description": "show demo",
+      "line": 14,
+      "title": "DEMO"
+    },
+    {
+      "file": "2024/Common.fs",
+      "description": "Step-by-step type for solution of a problem to enable visualisation.",
+      "line": 3
+    },
+    {
+      "file": "2024/15.fs",
+      "description": "step implementation for day 15",
+      "line": 84
+    },
+    {
+      "file": "2024/15.fs",
+      "description": "every step update state ",
+      "line": 6
+    },
+    {
+      "file": "2024/15.fs",
+      "description": "Solution for part2",
+      "line": 107
+    },
+    {
+      "file": "visualization/src/15vis.fs",
+      "description": "Create visualisation data for day 15",
+      "line": 1
+    },
+    {
+      "file": "visualization/Main.cs",
+      "description": "C# wrapper registered in Godot",
+      "line": 5
+    },
+    {
+      "file": "visualization/src/Main.fs",
+      "description": "key controls",
+      "line": 89
+    },
+    {
+      "file": "visualization/src/Main.fs",
+      "description": "Main visualisation code",
+      "line": 10
+    },
+    {
+      "file": "visualization/src/Main.fs",
+      "description": "draw visualisation data for one step onto the grid",
+      "line": 54
+    }
+  ]
+}
