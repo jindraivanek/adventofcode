@@ -7,7 +7,7 @@ My solutions for [Advent of code](https://adventofcode.com)
 - run `dotnet run -c release` in year directory
 
 ## How to run visualization (year 2024)
-- install Godot mono v 4.3
+- install [Godot](https://godotengine.org) mono v 4.3
 - run Godot, open `visualization/project.godot` project
 - run project from Godot
 - visualised problem is hardcoded [here](https://github.com/jindraivanek/adventofcode/blob/9ff0d91e65abcea6775cc0637c5a57415da4c662/visualization/src/Main.fs#L11)
