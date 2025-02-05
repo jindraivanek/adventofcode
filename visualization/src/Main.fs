@@ -76,7 +76,7 @@ type MainFs(this: Node2D) =
         let res = loadRes.Value
         let moveDir = Input.GetVector("left", "right", "up", "down")
         res.player.Velocity <- moveDir * moveSpeed
-        res.player.MoveAndSlide()
+        res.player.MoveAndSlide() |> ignore
 
         //let step = time.Elapsed.TotalSeconds * 2. |> int
         if not paused then

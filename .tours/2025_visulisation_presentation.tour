@@ -40,7 +40,7 @@
     },
     {
       "file": "visualization/Main.cs",
-      "description": "C# wrapper registered in Godot",
+      "description": "C# wrapper registered as script in Godot",
       "line": 5
     },
     {
