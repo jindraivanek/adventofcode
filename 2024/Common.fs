@@ -1,9 +1,9 @@
 module Common
 
-type Solution<'s> =
-    { Init: string[] -> 's
-      Step: int -> 's -> 's option
-      Result: 's -> string }
+type Solution<'State> =
+    { Init: string[] -> 'State
+      Step: int -> 'State -> 'State option
+      Result: 'State -> string }
 
 type Day<'s1, 's2> =
     { Day: int

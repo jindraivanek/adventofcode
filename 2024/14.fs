@@ -53,10 +53,11 @@ let part2 = part1 10403
 let sol =
     { Day = 14
       Part1 = part1 100
-      Part2 =
-        solution part2.Init (fun x ->
-            run x part2.Step
-            |> Seq.map quadrantScore
-            |> Seq.indexed
-            |> Seq.minBy snd
-            |> string) }
+      Part2 = part2
+        // solution part2.Init (fun x ->
+        //     run x part2.Step
+        //     |> Seq.map quadrantScore
+        //     |> Seq.indexed
+        //     |> Seq.minBy snd
+        //     |> string) 
+        }
