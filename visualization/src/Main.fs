@@ -38,7 +38,7 @@ type MainFs(this: Node2D) =
     
     let wall = getModulatedSource 1 "res://assets/player.png" (Color(1.f, 1.f, 1.f, 1.f))
     let player = getModulatedSource 1 "res://assets/player.png" (Color(0.f, 1.f, 0f, 0.5f))
-    let peekHigh = getModulatedSource 1 "res://assets/player.png" (Color(0.5f, 0.f, 0.5f, 0.5f))
+    let peekHigh = getModulatedSource 1 "res://assets/player.png" (Color(0.1f, 0.f, 0.5f, 0.5f))
     let peek = getModulatedSource 1 "res://assets/player.png" (Color(0.5f, 0.5f, 0.5f, 0.5f))
     let trail = getModulatedSource 1 "res://assets/player.png" (Color(0.f, 0.f, 0.5f, 0.5f))
 
@@ -49,7 +49,6 @@ type MainFs(this: Node2D) =
         GD.Print(step.ToString())
         let res = loadRes.Value
         let grid = sol[step] 
-        res.player.Position <- Vector2((float32 (fst grid.Size)) / 2.f * 16.f, (float32 (snd grid.Size)) / 2.f * 16.f)
         res.tileMap.Clear()
         grid.Grid |> Map.iter (fun (i, j) ->
             function
@@ -70,6 +69,7 @@ type MainFs(this: Node2D) =
     member _.ready() = 
        GD.Print(sol.Length)
        drawStep (int step)
+       loadRes.Value.player.Position <- Vector2((float32 (fst sol[0].Size)) / 2.f * 16.f, (float32 (snd sol[0].Size)) / 2.f * 16.f)
        time.Restart()
         
     member _.process(delta) = 
